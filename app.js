@@ -1851,12 +1851,12 @@ function renderPortfolioPage() {
                                 <span class="detail-value">${formatNumber(pos.shares, 0)}</span>
 
                                 <span class="detail-label">庫存成本</span>
-                                <span class="detail-value" id="inv-cost-${pos.symbol}">${formatNumber(localCost, 2)}</span>
+                                <span class="detail-value" id="inv-cost-${pos.symbol}">${formatNumber(localCost, 0)}</span>
                                 <span class="detail-label">現值*</span>
-                                <span class="detail-value" id="inv-val-${pos.symbol}">${formatNumber(localCurrentVal, 2)}</span>
+                                <span class="detail-value" id="inv-val-${pos.symbol}">${formatNumber(localCurrentVal, 0)}</span>
 
                                 <span class="detail-label">投資損益*</span>
-                                <span class="detail-value ${pnlColor}" id="inv-pnl-${pos.symbol}">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}</span>
+                                <span class="detail-value ${pnlColor}" id="inv-pnl-${pos.symbol}">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 0)}</span>
                                 <span class="detail-label">含息報酬率 <i class="fa-solid fa-circle-info" style="font-size:0.8rem; opacity:0.6;"></i></span>
                                 <span class="detail-value text-up" id="inv-yield-${pos.symbol}">${pos.symbol === '02940' ? '3.59%' : formatNumber(localPnlPct, 2) + '%'}</span>
                             </div>
@@ -1883,7 +1883,7 @@ function renderPortfolioPage() {
                                 </div>
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
                                     <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">庫存現值*</span>
-                                    <span id="summary-val-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(localCurrentVal, 2)}</span>
+                                    <span id="summary-val-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(localCurrentVal, 0)}</span>
                                 </div>
                             </div>
                             <div style="color:#ffffff; font-size:1rem; font-weight:700; line-height:1.6; padding-top:12px; border-top:1px solid #222;">標註*欄位為延遲報價計算，日/深/滬為昨收價計算</div>
@@ -3002,9 +3002,9 @@ function updatePortfolioRowUI(stock) {
     const sPctEl = document.getElementById(`summary-pct-${stock.symbol}`);
     const sValEl = document.getElementById(`summary-val-${stock.symbol}`);
     
-    if (valEl) valEl.textContent = formatNumber(localCurrentVal, 2);
+    if (valEl) valEl.textContent = formatNumber(localCurrentVal, 0);
     if (pnlEl) {
-        pnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}`;
+        pnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 0)}`;
         pnlEl.className = `detail-value ${getColorClass(localGrossPnl)}`;
     }
     if (yieldEl && stock.symbol !== '02940') {
@@ -3023,14 +3023,14 @@ function updatePortfolioRowUI(stock) {
         sPctEl.style.fontSize = '1.05rem'; sPctEl.style.fontWeight = '700'; sPctEl.style.fontFamily = 'var(--font-mono)'; sPctEl.style.textAlign = 'right'; sPctEl.style.fontVariantNumeric = 'tabular-nums';
     }
     if (sValEl) {
-        sValEl.textContent = formatNumber(localCurrentVal, 2);
+        sValEl.textContent = formatNumber(localCurrentVal, 0);
         sValEl.style.fontSize = (sValEl.textContent.length > 10 ? '0.9rem' : '1.05rem');
     }
 
     const sCostEl = document.getElementById(`summary-cost-${stock.symbol}`);
-    if (sCostEl) {
-        sCostEl.textContent = formatNumber(localCost, 0);
-    }
+    const iCostEl = document.getElementById(`inv-cost-${stock.symbol}`);
+    if (sCostEl) sCostEl.textContent = formatNumber(localCost, 0);
+    if (iCostEl) iCostEl.textContent = formatNumber(localCost, 0);
 }
 
 function saveState() {
