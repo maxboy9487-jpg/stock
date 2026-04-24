@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>模擬台股交易 APP</title>
+    <meta name="description" content="行動端優先的模擬股票交易應用程式">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="app" class="app-container">
+        <!-- Toast Container for Notifications -->
+        <div class="toast-container"></div>
+
+        <!-- OS Status Bar Simulation -->
+        <div id="os-status-bar"
+            style="display: flex; justify-content: space-between; align-items: center; padding: 2px 24px 2px 30px; font-family: var(--font-family); height: 44px; background: transparent; color: var(--text-primary); position: relative; z-index: 10000; font-weight: 600; letter-spacing: -0.2px; filter: blur(0.12px); opacity: 0.96;">
+            <div id="os-time" style="font-size: 15px; font-weight: 600;">--:--</div>
+            <div style="display: flex; gap: 5.5px; align-items: center; margin-right: -4px;">
+                <!-- iOS Signal Bars (3 bars solid, 1 bar muted) -->
+                <div style="display: flex; align-items: flex-end; gap: 1.5px; height: 10px; margin-bottom: 2px;">
+                    <div style="width: 3px; height: 4.5px; background: var(--text-primary); border-radius: 1.5px;">
+                    </div>
+                    <div style="width: 3px; height: 6.5px; background: var(--text-primary); border-radius: 1.5px;">
+                    </div>
+                    <div style="width: 3px; height: 8.5px; background: var(--text-primary); border-radius: 1.5px;">
+                    </div>
+                    <div style="width: 3px; height: 10.5px; background: var(--text-primary); border-radius: 1.5px;">
+                    </div>
+                </div>
+                <!-- iOS 4G Text -->
+                <div
+                    style="font-size: 12.5px; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 1.5px; margin-right: 1.5px; margin-left: 1px;">
+                    4G</div>
+                <!-- iOS Battery -->
+                <div style="display:flex; align-items:center;">
+                    <div
+                        style="width: 26.5px; height: 12.5px; border: 1.2px solid rgba(128,128,128,0.5); border-radius: 3.5px; display: flex; align-items: center; position: relative; padding: 1.2px;">
+                        <div style="width: 84%; height: 100%; background: var(--text-primary); border-radius: 1px;">
+                        </div>
+                        <span
+                            style="color: var(--bg-dark); font-size: 8px; font-weight: 800; letter-spacing: -0.5px; font-family: var(--font-family); position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 2;">84</span>
+                    </div>
+                    <div
+                        style="width: 1.5px; height: 4px; background: rgba(128,128,128,0.5); border-radius: 0 1px 1px 0; margin-left: 1px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <header class="app-header">
+            <button id="back-btn" class="header-btn" style="display: none;">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h1 id="header-title"
+                style="font-size: 1.15rem; margin: 0; flex: 1; text-align: center; color: var(--text-primary);">樹精靈App
+            </h1>
+            <div class="header-spacer"></div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="app-main">
+            <!-- Pages will be injected here via JS -->
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav" class="app-nav">
+            <button class="nav-item active" data-target="home">
+                <span>自選</span>
+            </button>
+            <button class="nav-item" data-target="selection">
+                <span>報價</span>
+            </button>
+            <button class="nav-item" data-target="trade">
+                <span>下單</span>
+            </button>
+            <button class="nav-item" data-target="portfolio">
+                <span>帳務</span>
+            </button>
+            <button class="nav-item" data-target="more" onclick="showToast('更多設定與功能開發中')">
+                <span>更多</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
