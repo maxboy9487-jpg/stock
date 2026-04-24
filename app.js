@@ -1831,7 +1831,7 @@ function renderPortfolioPage() {
                             <div style="flex:1.4; font-family:var(--font-mono); color:#E1E1DA; font-size:1.25rem; text-decoration:underline; font-weight:600; letter-spacing:0.5px; text-align:left;">${pos.symbol}</div>
                             <div id="inv-price-${pos.symbol}" style="flex:1; font-family:var(--font-mono); font-size:1.3rem; font-weight:500; color:#ffffff; text-align:center;">${formatNumber(currentPrice, 3)}</div>
                             <div style="flex:1.2; font-family:var(--font-mono); color:#E1E1DA; font-size:1.1rem; text-decoration:underline; font-weight:500; text-align:center;">${formatNumber(pos.shares, 0)}</div>
-                            <div id="inv-pnlpct-${pos.symbol}" style="flex:1; font-family:var(--font-mono); font-weight:700; font-size:1.2rem; text-align:right;" class="${pnlPctColor}">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</div>
+                            <div id="inv-pnlpct-${pos.symbol}" style="flex:1; font-family:var(--font-mono); font-weight:700; font-size:1.2rem; text-align:right; font-variant-numeric: tabular-nums;" class="${pnlPctColor}">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</div>
                         </div>
 
                         <div id="inv-detail-${pos.symbol}" class="portfolio-expanded-section" style="display: ${isExpanded ? 'block' : 'none'};">
@@ -1871,7 +1871,7 @@ function renderPortfolioPage() {
                             <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; row-gap:14px; column-gap:16px; margin-bottom:14px;">
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
                                     <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">總投資損益*</span>
-                                    <span id="summary-pnl-${pos.symbol}" class="${pnlColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}</span>
+                                    <span id="summary-pnl-${pos.symbol}" class="${pnlColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 0)}</span>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
                                     <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">總報酬率*</span>
@@ -1879,7 +1879,7 @@ function renderPortfolioPage() {
                                 </div>
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
                                     <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">總成本</span>
-                                    <span id="summary-cost-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(localCost, 2)}</span>
+                                    <span id="summary-cost-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(localCost, 0)}</span>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
                                     <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">庫存現值*</span>
@@ -3012,7 +3012,7 @@ function updatePortfolioRowUI(stock) {
     }
 
     if (sPnlEl) {
-        sPnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}`;
+        sPnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 0)}`;
         sPnlEl.className = `${getColorClass(localGrossPnl)}`;
         sPnlEl.style.fontSize = (sPnlEl.textContent.length > 10 ? '0.9rem' : '1.05rem');
         sPnlEl.style.fontWeight = '700'; sPnlEl.style.fontFamily = 'var(--font-mono)'; sPnlEl.style.textAlign = 'right';
@@ -3020,11 +3020,16 @@ function updatePortfolioRowUI(stock) {
     if (sPctEl) {
         sPctEl.textContent = `${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%`;
         sPctEl.className = `${getColorClass(localPnlPct)}`;
-        sPctEl.style.fontSize = '1.05rem'; sPctEl.style.fontWeight = '700'; sPctEl.style.fontFamily = 'var(--font-mono)'; sPctEl.style.textAlign = 'right';
+        sPctEl.style.fontSize = '1.05rem'; sPctEl.style.fontWeight = '700'; sPctEl.style.fontFamily = 'var(--font-mono)'; sPctEl.style.textAlign = 'right'; sPctEl.style.fontVariantNumeric = 'tabular-nums';
     }
     if (sValEl) {
         sValEl.textContent = formatNumber(localCurrentVal, 2);
         sValEl.style.fontSize = (sValEl.textContent.length > 10 ? '0.9rem' : '1.05rem');
+    }
+
+    const sCostEl = document.getElementById(`summary-cost-${stock.symbol}`);
+    if (sCostEl) {
+        sCostEl.textContent = formatNumber(localCost, 0);
     }
 }
 
