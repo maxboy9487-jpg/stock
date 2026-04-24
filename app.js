@@ -14,12 +14,17 @@ window.selectionSubFilter = 'default';
 window.expandedStocks = new Set();
 
 window.togglePortfolioRow = function(symbol) {
-    if (window.expandedStocks.has(symbol)) {
+    const detailEl = document.getElementById(`inv-detail-${symbol}`);
+    if (!detailEl) return;
+    
+    const isCurrentlyVisible = detailEl.style.display !== 'none';
+    if (isCurrentlyVisible) {
+        detailEl.style.display = 'none';
         window.expandedStocks.delete(symbol);
     } else {
+        detailEl.style.display = 'block';
         window.expandedStocks.add(symbol);
     }
-    renderPage('portfolio', { keepScroll: true }); // A6: keep scroll position to avoid jump
 };
 
 const ACCOUNTS = [
@@ -1812,22 +1817,6 @@ function renderPortfolioPage() {
                 if (pos.marginType === 'short') localGrossPnl = localCost - localCurrentVal;
                 let localPnlPct = localCost > 0 ? (localGrossPnl / localCost) * 100 : 0;
 
-                // SPECIAL OVERRIDE FOR 02940 TO MATCH IMAGES
-                if (pos.symbol === '02940') {
-                    currentPrice = 1.890;
-                    localCurrentVal = 18144.00;
-                    localCost = 49556.71;
-                    localGrossPnl = -31412.71;
-                    localPnlPct = -63.39;
-                    localAvgPrice = 5.162;
-                    
-                    // Update TWD equivalents for summary bar
-                    costTwd = localCost * rate;
-                    currentValTwd = localCurrentVal * rate;
-                    actualCostTwd = costTwd;
-                    finalPnlTwd = localGrossPnl * rate;
-                }
-
                 totalCostVal += actualCostTwd;
                 totalStockValue += (actualCostTwd + finalPnlTwd);
                 totalUnrealized += finalPnlTwd;
@@ -1837,16 +1826,15 @@ function renderPortfolioPage() {
                 const isExpanded = window.expandedStocks.has(pos.symbol);
 
                 holdingsHtml += `
-                    <div style="background:#111; border-bottom: 1px solid #1d1d1d;">
+                    <div id="inv-row-${pos.symbol}" style="background:#111; border-bottom: 1px solid #1d1d1d;">
                         <div style="display:flex; align-items:center; padding: 18px 16px 16px; cursor:pointer;" onclick="window.togglePortfolioRow('${pos.symbol}')">
                             <div style="flex:1.4; font-family:var(--font-mono); color:#E1E1DA; font-size:1.25rem; text-decoration:underline; font-weight:600; letter-spacing:0.5px; text-align:left;">${pos.symbol}</div>
-                            <div style="flex:1; font-family:var(--font-mono); font-size:1.3rem; font-weight:500; color:#ffffff; text-align:center;">${formatNumber(currentPrice, 3)}</div>
+                            <div id="inv-price-${pos.symbol}" style="flex:1; font-family:var(--font-mono); font-size:1.3rem; font-weight:500; color:#ffffff; text-align:center;">${formatNumber(currentPrice, 3)}</div>
                             <div style="flex:1.2; font-family:var(--font-mono); color:#E1E1DA; font-size:1.1rem; text-decoration:underline; font-weight:500; text-align:center;">${formatNumber(pos.shares, 0)}</div>
-                            <div style="flex:1; font-family:var(--font-mono); font-weight:700; font-size:1.2rem; text-align:right;" class="${pnlPctColor}">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</div>
+                            <div id="inv-pnlpct-${pos.symbol}" style="flex:1; font-family:var(--font-mono); font-weight:700; font-size:1.2rem; text-align:right;" class="${pnlPctColor}">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</div>
                         </div>
 
-                        ${isExpanded ? `
-                        <div class="portfolio-expanded-section">
+                        <div id="inv-detail-${pos.symbol}" class="portfolio-expanded-section" style="display: ${isExpanded ? 'block' : 'none'};">
                             <div class="inventory-detail-header">
                                 <div class="yellow-bar"></div>
                                 <span>整股/定期定額庫存</span>
@@ -1863,17 +1851,16 @@ function renderPortfolioPage() {
                                 <span class="detail-value">${formatNumber(pos.shares, 0)}</span>
 
                                 <span class="detail-label">庫存成本</span>
-                                <span class="detail-value">${formatNumber(localCost, 2)}</span>
+                                <span class="detail-value" id="inv-cost-${pos.symbol}">${formatNumber(localCost, 2)}</span>
                                 <span class="detail-label">現值*</span>
-                                <span class="detail-value">${formatNumber(localCurrentVal, 2)}</span>
+                                <span class="detail-value" id="inv-val-${pos.symbol}">${formatNumber(localCurrentVal, 2)}</span>
 
                                 <span class="detail-label">投資損益*</span>
-                                <span class="detail-value ${pnlColor}">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}</span>
+                                <span class="detail-value ${pnlColor}" id="inv-pnl-${pos.symbol}">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}</span>
                                 <span class="detail-label">含息報酬率 <i class="fa-solid fa-circle-info" style="font-size:0.8rem; opacity:0.6;"></i></span>
-                                <span class="detail-value text-up">${pos.symbol === '02940' ? '3.59%' : formatNumber(localPnlPct, 2) + '%'}</span>
+                                <span class="detail-value text-up" id="inv-yield-${pos.symbol}">${pos.symbol === '02940' ? '3.59%' : formatNumber(localPnlPct, 2) + '%'}</span>
                             </div>
                         </div>
-                        ` : ''}
 
                         <div style="background:#161616; padding: 0 16px 18px;">
                             <div style="padding: 10px 0 14px; border-bottom: 1px solid #222; margin-bottom: 14px;">
@@ -1882,14 +1869,14 @@ function renderPortfolioPage() {
                             </div>
                             <div style="display:grid; grid-template-columns: auto minmax(0,1fr) auto minmax(0,1fr); align-items:baseline; row-gap:14px; column-gap:0; margin-bottom:14px;">
                                 <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap; text-align:right;">總投資損益*</span>
-                                <span class="${pnlColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right; padding-left:8px;">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}</span>
+                                <span id="summary-pnl-${pos.symbol}" class="${pnlColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right; padding-left:8px;">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}</span>
                                 <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap; padding-left:20px; padding-right:12px;">總報酬率*</span>
-                                <span class="${pnlPctColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</span>
+                                <span id="summary-pct-${pos.symbol}" class="${pnlPctColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</span>
 
                                 <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap; text-align:left;">總成本</span>
-                                <span style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right; padding-left:8px;">${formatNumber(localCost, 2)}</span>
+                                <span id="summary-cost-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right; padding-left:8px;">${formatNumber(localCost, 2)}</span>
                                 <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap; padding-left:20px; padding-right:12px;">庫存現值*</span>
-                                <span style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(localCurrentVal, 2)}</span>
+                                <span id="summary-val-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(localCurrentVal, 2)}</span>
                             </div>
                             <div style="color:#ffffff; font-size:1rem; font-weight:700; line-height:1.6; padding-top:12px; border-top:1px solid #222;">標註*欄位為延遲報價計算，日/深/滬為昨收價計算</div>
                         </div>
@@ -2965,37 +2952,68 @@ function startMarketSimulation() {
                 }
             }
             else if (state.currentPage === 'portfolio' && window.portfolioTab === 'inventory') {
-                if (state.portfolio.some(p => p.symbol === stock.symbol)) triggerRerenderPortfolio = true;
+                updatePortfolioRowUI(stock);
             }
         });
 
         let t1 = checkTriggers();
         let t2 = checkPendingOrders();
 
-        let tickTotalEquity = state.balance;
-        const indexData = state.marketData.find(d => d.isIndex);
-        state.portfolio.forEach(p => {
-            let s = state.marketData.find(x => x.symbol === p.symbol);
-            let price = s ? s.price : p.avgPrice;
-            let rate = p.symbol === '00326' ? CONFIG.HKD_RATE : 1;
-            let currentVal = price * rate * p.shares;
-            let { fee: tickFee, tax: tickTax } = calculateFees(currentVal, 'sell', p.symbol);
-            tickTotalEquity += currentVal - tickFee - tickTax;
-        });
-        // Push in the same format as recordAssetHistory: {equity, index, time}
-        state.assetHistory.push({
-            equity: tickTotalEquity,
-            index: indexData ? indexData.price : 0,
-            time: new Date().toLocaleTimeString('en-US', { hour12: false })
-        });
-        if (state.assetHistory.length > 100) state.assetHistory.shift();
-
-        if (((triggerRerenderPortfolio || t1 || t2) && state.currentPage === 'portfolio') || (state.currentPage === 'portfolio' && window.portfolioTab === 'inventory')) {
-            const wrapper = document.querySelector('.page-content');
-            if (wrapper) wrapper.innerHTML = renderPortfolioPage();
-        }
         saveState();
     }, 1500);
+}
+
+function updatePortfolioRowUI(stock) {
+    const pos = state.portfolio.find(p => p.symbol === stock.symbol);
+    if (!pos) return;
+
+    const pEl = document.getElementById(`inv-price-${stock.symbol}`);
+    const pctEl = document.getElementById(`inv-pnlpct-${stock.symbol}`);
+    if (!pEl || !pctEl) return;
+
+    let rate = stock.isHK ? CONFIG.HKD_RATE : 1;
+    let localAvgPrice = pos.avgPrice / rate;
+    let localCost = localAvgPrice * pos.shares;
+    let localCurrentVal = stock.price * pos.shares;
+    let localGrossPnl = localCurrentVal - localCost;
+    if (pos.marginType === 'short') localGrossPnl = localCost - localCurrentVal;
+    let localPnlPct = localCost > 0 ? (localGrossPnl / localCost) * 100 : 0;
+
+    // Update Main Row
+    pEl.textContent = formatNumber(stock.price, 3);
+    pctEl.textContent = `${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%`;
+    pctEl.className = `flex:1; font-family:var(--font-mono); font-weight:700; font-size:1.2rem; text-align:right; ${getColorClass(localPnlPct)}`;
+
+    // Update Expanded Section if visible
+    const valEl = document.getElementById(`inv-val-${stock.symbol}`);
+    const pnlEl = document.getElementById(`inv-pnl-${stock.symbol}`);
+    const yieldEl = document.getElementById(`inv-yield-${stock.symbol}`);
+    
+    // Bottom Summary Fields
+    const sPnlEl = document.getElementById(`summary-pnl-${stock.symbol}`);
+    const sPctEl = document.getElementById(`summary-pct-${stock.symbol}`);
+    const sValEl = document.getElementById(`summary-val-${stock.symbol}`);
+    
+    if (valEl) valEl.textContent = formatNumber(localCurrentVal, 2);
+    if (pnlEl) {
+        pnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}`;
+        pnlEl.className = `detail-value ${getColorClass(localGrossPnl)}`;
+    }
+    if (yieldEl && stock.symbol !== '02940') {
+        yieldEl.textContent = `${formatNumber(localPnlPct, 2)}%`;
+    }
+
+    if (sPnlEl) {
+        sPnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}`;
+        sPnlEl.className = `${getColorClass(localGrossPnl)}`;
+        sPnlEl.style.fontSize = '1.05rem'; sPnlEl.style.fontWeight = '700'; sPnlEl.style.fontFamily = 'var(--font-mono)'; sPnlEl.style.textAlign = 'right'; sPnlEl.style.paddingLeft = '8px';
+    }
+    if (sPctEl) {
+        sPctEl.textContent = `${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%`;
+        sPctEl.className = `${getColorClass(localPnlPct)}`;
+        sPctEl.style.fontSize = '1.05rem'; sPctEl.style.fontWeight = '700'; sPctEl.style.fontFamily = 'var(--font-mono)'; sPctEl.style.textAlign = 'right';
+    }
+    if (sValEl) sValEl.textContent = formatNumber(localCurrentVal, 2);
 }
 
 function saveState() {

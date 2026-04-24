@@ -160,8 +160,8 @@ window.parsedMarketData.push({
 
 
 window.parsedMarketData.push({ 
-    symbol: '02940', name: '經緯天地', price: 5.03, change: 0.00, prevClose: 5.03, 
-    open: 5.03, high: 5.03, low: 5.03, volume: 0, volumeStr: '0.0', turnoverAmount: '0.0', 
+    symbol: '02940', name: '經緯天地', price: 1.890, change: -3.272, prevClose: 5.162, 
+    open: 3.50, high: 4.10, low: 1.80, volume: 145000, volumeStr: '14.5萬', turnoverAmount: '27.4萬', 
     marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
     peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
     turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '5.03', amplitudeStr: '0.00%',
