@@ -1723,7 +1723,7 @@ window.exportHistoryCSV = exportHistoryCSV;
 
 function renderPortfolioPage() {
     let topHtml = `
-        <div style="background-color: #2b2a2f; color: white; margin: -16px -16px 0 -16px;">
+            <div style="background-color: #2b2a2f; color: white; margin: 0; padding: 0 4px;">
           <!-- First row: Header substitute -->
           <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 14px;">
             <div style="font-size:1.15rem; font-weight:600; display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="renderPage('home')"><i class="fa-solid fa-chevron-left" style="font-size:1.4rem;"></i> 帳務</div>
@@ -1755,7 +1755,7 @@ function renderPortfolioPage() {
           </div>
         </div>
         <!-- Below the tabs: filtering options bar -->
-        <div style="display:flex; justify-content:space-between; padding: 10px 16px; background:#141310; align-items:center; margin: 0 -16px 0 -16px;">
+        <div style="display:flex; justify-content:space-between; padding: 10px 16px; background:#141310; align-items:center; margin: 0;">
             <div style="display:flex; gap:12px; color:white; font-size:1.1rem; font-weight:600; align-items:center;">
                 <div style="cursor:pointer; display:flex; align-items:center; gap:4px;"><i class="fa-solid fa-magnifying-glass" style="font-size:0.9rem;"></i> 篩選</div>
                 <div style="cursor:pointer; display:flex; align-items:center; gap:4px;"><i class="fa-solid fa-info-circle" style="font-size:0.9rem; color:#aaa;"></i> 說明</div>
@@ -1771,14 +1771,14 @@ function renderPortfolioPage() {
 
         // ---- Shared header HTML ----
         const invHeader = `
-            <div style="display:flex; align-items:center; background:#1a3347; padding: 16px 20px; border-bottom: 1px solid #122436;">
-                <div style="flex:1.4; font-size:1.2rem; color:#ffffff; font-weight:700; letter-spacing:0.5px; text-align:center;">代號</div>
-                <div style="color:#3a5a72; padding:0 10px; font-size:1.1rem; font-weight:300; line-height:1;">|</div>
-                <div style="flex:1; font-size:1.2rem; color:#ffffff; font-weight:700; text-align:center;">最新價</div>
-                <div style="color:#3a5a72; padding:0 10px; font-size:1.1rem; font-weight:300; line-height:1;">|</div>
-                <div style="flex:1.2; font-size:1.2rem; color:#ffffff; font-weight:700; text-align:center;">目前庫存</div>
-                <div style="color:#3a5a72; padding:0 10px; font-size:1.1rem; font-weight:300; line-height:1;">|</div>
-                <div style="flex:1; font-size:1.2rem; color:#ffffff; font-weight:700; text-align:right;">報酬率</div>
+            <div style="display:flex; align-items:center; background:#1a3347; padding: 16px 12px; border-bottom: 1px solid #122436;">
+                <div style="flex:1.4; font-size:1.1rem; color:#ffffff; font-weight:700; letter-spacing:0.5px; text-align:center;">代號</div>
+                <div style="color:#3a5a72; padding:0 6px; font-size:1.1rem; font-weight:300; line-height:1;">|</div>
+                <div style="flex:1.1; font-size:1.1rem; color:#ffffff; font-weight:700; text-align:center;">最新價</div>
+                <div style="color:#3a5a72; padding:0 6px; font-size:1.1rem; font-weight:300; line-height:1;">|</div>
+                <div style="flex:1.2; font-size:1.1rem; color:#ffffff; font-weight:700; text-align:center;">目前庫存</div>
+                <div style="color:#3a5a72; padding:0 6px; font-size:1.1rem; font-weight:300; line-height:1;">|</div>
+                <div style="flex:1; font-size:1.1rem; color:#ffffff; font-weight:700; text-align:right;">報酬率</div>
             </div>`;
 
         if (state.portfolio.length === 0) {
@@ -1851,12 +1851,12 @@ function renderPortfolioPage() {
                                 <span class="detail-value">${formatNumber(pos.shares, 0)}</span>
 
                                 <span class="detail-label">庫存成本</span>
-                                <span class="detail-value" id="inv-cost-${pos.symbol}">${formatNumber(localCost, 0)}</span>
+                                <span class="detail-value" id="inv-cost-${pos.symbol}">${formatNumber(Math.round(localCost), 0)}</span>
                                 <span class="detail-label">現值*</span>
-                                <span class="detail-value" id="inv-val-${pos.symbol}">${formatNumber(localCurrentVal, 0)}</span>
+                                <span class="detail-value" id="inv-val-${pos.symbol}">${formatNumber(Math.round(localCurrentVal), 0)}</span>
 
                                 <span class="detail-label">投資損益*</span>
-                                <span class="detail-value ${pnlColor}" id="inv-pnl-${pos.symbol}">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 0)}</span>
+                                <span class="detail-value ${pnlColor}" id="inv-pnl-${pos.symbol}">${getSign(localGrossPnl)}${formatNumber(Math.round(localGrossPnl), 0)}</span>
                                 <span class="detail-label">含息報酬率 <i class="fa-solid fa-circle-info" style="font-size:0.8rem; opacity:0.6;"></i></span>
                                 <span class="detail-value text-up" id="inv-yield-${pos.symbol}">${pos.symbol === '02940' ? '3.59%' : formatNumber(localPnlPct, 2) + '%'}</span>
                             </div>
@@ -1871,19 +1871,19 @@ function renderPortfolioPage() {
                             <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; row-gap:14px; column-gap:16px; margin-bottom:14px;">
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
                                     <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">總投資損益*</span>
-                                    <span id="summary-pnl-${pos.symbol}" class="${pnlColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 0)}</span>
+                                    <span id="summary-pnl-${pos.symbol}" class="${pnlColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localGrossPnl)}${formatNumber(Math.round(localGrossPnl), 0)}</span>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
                                     <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">總報酬率*</span>
-                                    <span id="summary-pct-${pos.symbol}" class="${pnlPctColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</span>
+                                    <span id="summary-pct-${pos.symbol}" class="${pnlPctColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right; font-variant-numeric: tabular-nums;">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</span>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
                                     <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">總成本</span>
-                                    <span id="summary-cost-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(localCost, 0)}</span>
+                                    <span id="summary-cost-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(Math.round(localCost), 0)}</span>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
                                     <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">庫存現值*</span>
-                                    <span id="summary-val-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(localCurrentVal, 0)}</span>
+                                    <span id="summary-val-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(Math.round(localCurrentVal), 0)}</span>
                                 </div>
                             </div>
                             <div style="color:#ffffff; font-size:1rem; font-weight:700; line-height:1.6; padding-top:12px; border-top:1px solid #222;">標註*欄位為延遲報價計算，日/深/滬為昨收價計算</div>
@@ -3002,9 +3002,9 @@ function updatePortfolioRowUI(stock) {
     const sPctEl = document.getElementById(`summary-pct-${stock.symbol}`);
     const sValEl = document.getElementById(`summary-val-${stock.symbol}`);
     
-    if (valEl) valEl.textContent = formatNumber(localCurrentVal, 0);
+    if (valEl) valEl.textContent = formatNumber(Math.round(localCurrentVal), 0);
     if (pnlEl) {
-        pnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 0)}`;
+        pnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(Math.round(localGrossPnl), 0)}`;
         pnlEl.className = `detail-value ${getColorClass(localGrossPnl)}`;
     }
     if (yieldEl && stock.symbol !== '02940') {
@@ -3012,7 +3012,7 @@ function updatePortfolioRowUI(stock) {
     }
 
     if (sPnlEl) {
-        sPnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 0)}`;
+        sPnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(Math.round(localGrossPnl), 0)}`;
         sPnlEl.className = `${getColorClass(localGrossPnl)}`;
         sPnlEl.style.fontSize = (sPnlEl.textContent.length > 10 ? '0.9rem' : '1.05rem');
         sPnlEl.style.fontWeight = '700'; sPnlEl.style.fontFamily = 'var(--font-mono)'; sPnlEl.style.textAlign = 'right';
@@ -3023,14 +3023,14 @@ function updatePortfolioRowUI(stock) {
         sPctEl.style.fontSize = '1.05rem'; sPctEl.style.fontWeight = '700'; sPctEl.style.fontFamily = 'var(--font-mono)'; sPctEl.style.textAlign = 'right'; sPctEl.style.fontVariantNumeric = 'tabular-nums';
     }
     if (sValEl) {
-        sValEl.textContent = formatNumber(localCurrentVal, 0);
+        sValEl.textContent = formatNumber(Math.round(localCurrentVal), 0);
         sValEl.style.fontSize = (sValEl.textContent.length > 10 ? '0.9rem' : '1.05rem');
     }
 
     const sCostEl = document.getElementById(`summary-cost-${stock.symbol}`);
     const iCostEl = document.getElementById(`inv-cost-${stock.symbol}`);
-    if (sCostEl) sCostEl.textContent = formatNumber(localCost, 0);
-    if (iCostEl) iCostEl.textContent = formatNumber(localCost, 0);
+    if (sCostEl) sCostEl.textContent = formatNumber(Math.round(localCost), 0);
+    if (iCostEl) iCostEl.textContent = formatNumber(Math.round(localCost), 0);
 }
 
 function saveState() {
