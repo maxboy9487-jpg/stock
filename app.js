@@ -30,7 +30,8 @@ window.togglePortfolioRow = function(symbol) {
 const ACCOUNTS = [
     { branch: '台南', id: '3815467' },
     { branch: '台北', id: '7884943' },
-    { branch: '台南', id: '4107426' },
+    { branch: '松江', id: '8927384' },
+    { branch: '台南', id: '4108526' },
     { branch: '台北', id: '1185773' },
     { branch: '高雄', id: '5478879' }
 ];
