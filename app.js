@@ -2418,45 +2418,58 @@ function renderMorePage() {
     
     let allEntries = [...ordersWithDocNo, ...historyWithDocNo];
 
-    let listHtml = allEntries.map(entry => `
-        <div class="card" style="margin-bottom:12px; padding:16px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <div style="font-weight:600;">${entry.symbol} ${entry.name} <span style="font-size:0.8rem; color:#888;">(${entry.type === 'order' ? '未成交' : '已成交'})</span></div>
+    let listHtml = allEntries.map(entry => {
+        let entryObj = entry.type === 'order' ? state.orders.find(o => o.id == entry.id) : state.history.find(h => h.id == entry.id);
+        let currentTime = entryObj ? entryObj.time : '';
+        
+        return `
+            <div class="card" style="margin-bottom:12px; padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div style="font-weight:600;">${entry.symbol} ${entry.name} <span style="font-size:0.8rem; color:#888;">(${entry.type === 'order' ? '未成交' : '已成交'})</span></div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <span style="font-size:0.9rem; color:var(--text-secondary); white-space:nowrap; width:70px;">委託書號:</span>
+                        <input type="text" class="form-control doc-no-input" data-id="${entry.id}" data-type="${entry.type}" value="${entry.docNo || ''}" maxlength="10" placeholder="10位書號" style="flex:1; background:var(--bg-input); border-color:#444;">
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <span style="font-size:0.9rem; color:var(--text-secondary); white-space:nowrap; width:70px;">時間:</span>
+                        <input type="text" class="form-control time-input" data-id="${entry.id}" data-type="${entry.type}" value="${currentTime}" placeholder="YYYY/MM/DD HH:MM:SS" style="flex:1; background:var(--bg-input); border-color:#444; font-family:var(--font-mono); font-size:0.85rem;">
+                    </div>
+                </div>
             </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <span style="font-size:0.9rem; color:var(--text-secondary); white-space:nowrap;">委託書號:</span>
-                <input type="text" class="form-control doc-no-input" data-id="${entry.id}" data-type="${entry.type}" value="${entry.docNo || ''}" maxlength="10" placeholder="請輸入10位書號" style="flex:1; background:var(--bg-input); border-color:#444;">
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 
     if (allEntries.length === 0) listHtml = '<div style="text-align:center; padding:2rem; color:#888;">目前尚無委託或成交紀錄可供修改。</div>';
 
     return `
         <div style="padding: 16px;">
-            <h3 style="color:white; margin-bottom:8px; font-size:1.2rem;">修改委託書號</h3>
-            <p style="color:#888; font-size:0.85rem; margin-bottom:20px;">您可以在此手動修改現有委託或成交紀錄的委托書號。</p>
+            <h3 style="color:white; margin-bottom:8px; font-size:1.2rem;">管理委託與成交資料</h3>
+            <p style="color:#888; font-size:0.85rem; margin-bottom:20px;">您可以在此手動修改書號與時間資訊。</p>
             
             ${listHtml}
             
-            <button class="btn btn-up" style="margin-top:12px; height:50px; font-weight:bold;" onclick="window.saveBatchDocNos()">儲存所有變更</button>
+            <button class="btn btn-up" style="margin-top:12px; height:50px; font-weight:bold;" onclick="window.saveBatchEdits()">儲存所有變更</button>
             <div style="margin-top:24px; padding:16px; background:#1e1e1e; border-radius:8px; color:#888; font-size:0.85rem;">
-                <div style="font-weight:bold; color:#ffb74d; margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> 注意事項</div>
-                1. 委託書號通常為 10 位數字。<br>
-                2. 修改後會即時反映至委託與成交列表。<br>
-                3. 請確保同一筆交易的委託與成交書號保持一致。
+                <div style="font-weight:bold; color:#ffb74d; margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> 操作提示</div>
+                1. 時間格式建議為：2026/04/23 14:58:22<br>
+                2. 修改後會即時同步至帳務列表及成交詳情。<br>
+                3. 此功能僅影響顯示，不影響模擬帳戶餘額。
             </div>
         </div>
     `;
 }
 
-window.saveBatchDocNos = function() {
-    const inputs = document.querySelectorAll('.doc-no-input');
-    inputs.forEach(input => {
+window.saveBatchEdits = function() {
+    const docInputs = document.querySelectorAll('.doc-no-input');
+    const timeInputs = document.querySelectorAll('.time-input');
+    
+    // Process DocNos
+    docInputs.forEach(input => {
         const id = input.getAttribute('data-id');
         const type = input.getAttribute('data-type');
         const newVal = input.value.trim();
-        
         if (type === 'order') {
             const order = state.orders.find(o => o.id == id);
             if (order) order.docNo = newVal;
@@ -2465,8 +2478,23 @@ window.saveBatchDocNos = function() {
             if (hist) hist.docNo = newVal;
         }
     });
+
+    // Process Times
+    timeInputs.forEach(input => {
+        const id = input.getAttribute('data-id');
+        const type = input.getAttribute('data-type');
+        const newVal = input.value.trim();
+        if (type === 'order') {
+            const order = state.orders.find(o => o.id == id);
+            if (order) order.time = newVal;
+        } else {
+            const hist = state.history.find(h => h.id == id);
+            if (hist) hist.time = newVal;
+        }
+    });
+
     saveState();
-    showToast('委託書號已批量更新成功', 'success');
+    showToast('資料已批量更新成功', 'success');
     renderPage('more');
 };
 
