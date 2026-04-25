@@ -340,7 +340,7 @@ function processOrderExecution(order, execPrice) {
             state.portfolio.push({ symbol: order.symbol, name: order.name, shares: shares, avgPrice: totalCost / shares, marginType: marginType });
         }
         state.history.unshift({
-            id: Date.now(), symbol: order.symbol, name: order.name, shares: shares,
+            id: Date.now(), docNo: order.docNo, symbol: order.symbol, name: order.name, shares: shares,
             time: fullTimeStr,
             price: execPrice, fee: fee, tax: tax, profit: 0, type: 'buy', marginType: marginType
         });
@@ -358,7 +358,7 @@ function processOrderExecution(order, execPrice) {
             state.portfolio.push({ symbol: order.symbol, name: order.name, shares: shares, avgPrice: totalProceeds / shares, marginType: marginType });
         }
         state.history.unshift({
-            id: Date.now(), symbol: order.symbol, name: order.name, shares: shares,
+            id: Date.now(), docNo: order.docNo, symbol: order.symbol, name: order.name, shares: shares,
             time: fullTimeStr,
             price: execPrice, fee: fee, tax: tax, profit: 0, type: 'sell', marginType: marginType
         });
@@ -371,7 +371,7 @@ function processOrderExecution(order, execPrice) {
             state.balance += returnedCapital;
 
             state.history.unshift({
-                id: Date.now(), symbol: order.symbol, name: order.name, shares: shares,
+                id: Date.now(), docNo: order.docNo, symbol: order.symbol, name: order.name, shares: shares,
                 time: fullTimeStr,
                 price: execPrice, buyAvgPrice: pos.avgPrice, sellPrice: execPrice, fee: fee, tax: tax, profit: profit, type: 'sell', marginType: marginType
             });
@@ -387,7 +387,7 @@ function processOrderExecution(order, execPrice) {
             state.balance += returnedCapital;
 
             state.history.unshift({
-                id: Date.now(), symbol: order.symbol, name: order.name, shares: shares,
+                id: Date.now(), docNo: order.docNo, symbol: order.symbol, name: order.name, shares: shares,
                 time: fullTimeStr,
                 price: execPrice, buyAvgPrice: execPrice, sellPrice: pos.avgPrice, fee: fee, tax: tax, profit: profit, type: 'buy', marginType: marginType
             });
@@ -461,7 +461,9 @@ function submitOrder(tradeParams, isTriggeredBySmart = false) {
     const orderTimeStr = `${realDate} ${realTime}`;
 
     const order = {
-        id: Date.now() + Math.floor(Math.random() * 100), symbol: stock.symbol, name: stock.name, side: side,
+        id: Date.now() + Math.floor(Math.random() * 100),
+        docNo: '90' + Math.floor(10000000 + Math.random() * 90000000).toString(),
+        symbol: stock.symbol, name: stock.name, side: side,
         type: priceType, price: estPrice, tif: tif || 'ROD', marginType: marginType,
         shares: shares, status: 'pending',
         time: orderTimeStr
@@ -752,6 +754,7 @@ function renderPage(page, options = {}) {
     switch (page) {
         case 'home': document.getElementById('header-title').textContent = '台股總覽'; pageWrapper.innerHTML = renderHomePage(); break;
         case 'portfolio': document.getElementById('header-title').textContent = '帳務與委託'; pageWrapper.innerHTML = renderPortfolioPage(); break;
+        case 'more': document.getElementById('header-title').textContent = '更多設定'; pageWrapper.innerHTML = renderMorePage(); break;
         case 'trade': document.getElementById('header-title').textContent = '下單交易'; pageWrapper.appendChild(buildTradePage()); break;
         case 'selection': document.getElementById('header-title').textContent = '智慧選股'; pageWrapper.innerHTML = renderSelectionPage(); break;
         case 'stockDetail':
@@ -2165,7 +2168,7 @@ function renderPortfolioPage() {
                             <div style="display:grid; grid-template-columns: 1fr 1fr; margin-bottom:12px;">
                                 <div style="display:grid; grid-template-columns: 75px 1fr; align-items: center;">
                                     <div>委託書號</div>
-                                    <div style="font-family:var(--font-mono);">0</div>
+                                    <div style="font-family:var(--font-mono);">${o.docNo || ''}</div>
                                 </div>
                                 <div style="display:flex; gap:16px;">
                                     <div>來源別</div>
@@ -2220,7 +2223,6 @@ function renderPortfolioPage() {
                 let randomSeconds = String(Math.floor(Math.random() * 60)).padStart(2, '0');
                 let execTime = `${y}/${m}/${d} ${_h}:${_min}:${randomSeconds}`;
                 
-                let randomOrderNo = "900" + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
 
                 tradesContent += `
                     <div style="background:#161511; border-bottom:1px solid #1a1a1a;">
@@ -2263,7 +2265,7 @@ function renderPortfolioPage() {
                             <div style="display:grid; grid-template-columns: 1fr 1fr; margin-bottom:12px;">
                                 <div style="display:grid; grid-template-columns: 85px 1fr; align-items: center;">
                                     <div>委託書號</div>
-                                    <div style="font-family:var(--font-mono);">${randomOrderNo}</div>
+                                    <div style="font-family:var(--font-mono);">${h.docNo || ''}</div>
                                 </div>
                                 <div style="display:grid; grid-template-columns: 70px 1fr; align-items: center;">
                                     <div>來源別</div>
@@ -2408,6 +2410,64 @@ function renderPortfolioPage() {
          <div style="text-align:center; margin-top: 24px; margin-bottom: 24px;"><button class="btn btn-outline" style="border-color:#ff5252; color:#ff5252; width:100%; border-radius:8px; padding:12px;" onclick="window.resetAppData()">重置模擬對帳單資料</button></div>`;
     }
 }
+
+function renderMorePage() {
+    let ordersWithDocNo = state.orders.map(o => ({ id: o.id, symbol: o.symbol, name: o.name, docNo: o.docNo, type: 'order' }));
+    let historyWithDocNo = state.history.map(h => ({ id: h.id, symbol: h.symbol, name: h.name, docNo: h.docNo, type: 'history' }));
+    
+    let allEntries = [...ordersWithDocNo, ...historyWithDocNo];
+
+    let listHtml = allEntries.map(entry => `
+        <div class="card" style="margin-bottom:12px; padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div style="font-weight:600;">${entry.symbol} ${entry.name} <span style="font-size:0.8rem; color:#888;">(${entry.type === 'order' ? '未成交' : '已成交'})</span></div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <span style="font-size:0.9rem; color:var(--text-secondary); white-space:nowrap;">委託書號:</span>
+                <input type="text" class="form-control doc-no-input" data-id="${entry.id}" data-type="${entry.type}" value="${entry.docNo || ''}" maxlength="10" placeholder="請輸入10位書號" style="flex:1; background:var(--bg-input); border-color:#444;">
+            </div>
+        </div>
+    `).join('');
+
+    if (allEntries.length === 0) listHtml = '<div style="text-align:center; padding:2rem; color:#888;">目前尚無委託或成交紀錄可供修改。</div>';
+
+    return `
+        <div style="padding: 16px;">
+            <h3 style="color:white; margin-bottom:8px; font-size:1.2rem;">修改委託書號</h3>
+            <p style="color:#888; font-size:0.85rem; margin-bottom:20px;">您可以在此手動修改現有委託或成交紀錄的委托書號。</p>
+            
+            ${listHtml}
+            
+            <button class="btn btn-up" style="margin-top:12px; height:50px; font-weight:bold;" onclick="window.saveBatchDocNos()">儲存所有變更</button>
+            <div style="margin-top:24px; padding:16px; background:#1e1e1e; border-radius:8px; color:#888; font-size:0.85rem;">
+                <div style="font-weight:bold; color:#ffb74d; margin-bottom:8px;"><i class="fa-solid fa-circle-info"></i> 注意事項</div>
+                1. 委託書號通常為 10 位數字。<br>
+                2. 修改後會即時反映至委託與成交列表。<br>
+                3. 請確保同一筆交易的委託與成交書號保持一致。
+            </div>
+        </div>
+    `;
+}
+
+window.saveBatchDocNos = function() {
+    const inputs = document.querySelectorAll('.doc-no-input');
+    inputs.forEach(input => {
+        const id = input.getAttribute('data-id');
+        const type = input.getAttribute('data-type');
+        const newVal = input.value.trim();
+        
+        if (type === 'order') {
+            const order = state.orders.find(o => o.id == id);
+            if (order) order.docNo = newVal;
+        } else {
+            const hist = state.history.find(h => h.id == id);
+            if (hist) hist.docNo = newVal;
+        }
+    });
+    saveState();
+    showToast('委託書號已批量更新成功', 'success');
+    renderPage('more');
+};
 
 // --- Trade View ---
 function buildTradePage() {
