@@ -27,7 +27,7 @@ window.togglePortfolioRow = function(symbol) {
     }
 };
 
-const ACCOUNTS = [
+const DEFAULT_ACCOUNTS = [
     { branch: '台南', id: '3815467' },
     { branch: '台北', id: '7884943' },
     { branch: '松江', id: '8927384' },
@@ -35,6 +35,9 @@ const ACCOUNTS = [
     { branch: '台北', id: '1185773' },
     { branch: '高雄', id: '5478879' }
 ];
+
+let customAccounts = JSON.parse(localStorage.getItem('stockCustomAccounts') || '[]');
+let ACCOUNTS = [...DEFAULT_ACCOUNTS, ...customAccounts];
 
 window.currentAccountId = localStorage.getItem('stockCurrentAccount');
 
@@ -111,11 +114,44 @@ window.renderAccountSelectionOverlay = function() {
     overlay.innerHTML = `
         <div class="account-selection-container">
             <h2 style="color:white; text-align:center; margin-bottom:24px; font-weight:800; letter-spacing:1px;">請選擇操作帳戶</h2>
-            ${accountsHtml}
+            <div id="account-list-scroll" style="max-height: 480px; overflow-y: auto; margin: 0 -10px; padding: 0 10px;">
+                ${accountsHtml}
+            </div>
+            <button onclick="window.promptAddAccount()" style="width:100%; padding:14px; margin-top:16px; border:1px dashed #444; background:rgba(255,255,255,0.03); color:#888; border-radius:12px; cursor:pointer; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; transition: all 0.2s;" onmouseover="this.style.borderColor='var(--accent-blue)'; this.style.color='white'" onmouseout="this.style.borderColor='#444'; this.style.color='#888'">
+                <i class="fa-solid fa-plus"></i> 新增帳號
+            </button>
             <p style="color:#666; text-align:center; font-size:0.85rem; margin-top:20px;">切換帳戶後，所有交易紀錄將獨立儲存。</p>
         </div>
     `;
     document.body.appendChild(overlay);
+    
+    // Allow clicking outside to close
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            document.body.removeChild(overlay);
+        }
+    };
+};
+
+window.promptAddAccount = function() {
+    const branch = prompt('請輸入分公司地區 (例如: 台中)');
+    if (!branch) return;
+    const id = prompt('請輸入帳號數字 (例如: 1234567)');
+    if (!id) return;
+    
+    const newAcc = { branch, id };
+    ACCOUNTS.push(newAcc);
+    
+    let custom = JSON.parse(localStorage.getItem('stockCustomAccounts') || '[]');
+    custom.push(newAcc);
+    localStorage.setItem('stockCustomAccounts', JSON.stringify(custom));
+    
+    // Refresh the overlay
+    const overlay = document.querySelector('.account-selection-overlay');
+    if (overlay) document.body.removeChild(overlay);
+    window.renderAccountSelectionOverlay();
+    
+    showToast(`✅ 已新增帳戶: ${branch} ${id}`, 'success');
 };
 
 window.checkMarketStatus = function () {
