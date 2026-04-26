@@ -2251,14 +2251,7 @@ function renderPortfolioPage() {
                 let marketName = isHKLine ? '香港' : '台灣';
                 let currencyName = isHKLine ? '港幣' : '台幣';
                 
-                let y = "2026";
-                let m = "04";
-                let d = "23";
-                let _h = "14";
-                let _min = "58";
-                
-                let randomSeconds = String(Math.floor(Math.random() * 60)).padStart(2, '0');
-                let execTime = `${y}/${m}/${d} ${_h}:${_min}:${randomSeconds}`;
+                let execTime = h.time || "2026/04/23 14:58:" + String(Math.floor(Math.random() * 60)).padStart(2, '0');
                 
 
                 tradesContent += `
