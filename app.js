@@ -921,6 +921,33 @@ function renderHomePage() {
     const renderGroupedView = () => {
         let out = '';
         if (watchStocks.length > 0) {
+            const avgChg = watchStocks.reduce((s, x) => s + (x.change / (x.price - x.change || 1)) * 100, 0) / watchStocks.length;
+            const best = watchStocks.reduce((a, b) => ((b.change / (b.price - b.change || 1)) > (a.change / (a.price - a.change || 1))) ? b : a);
+            const worst = watchStocks.reduce((a, b) => ((b.change / (b.price - b.change || 1)) < (a.change / (a.price - a.change || 1))) ? b : a);
+            const totalUp = watchStocks.filter(s => s.change > 0).length;
+            const totalDn = watchStocks.filter(s => s.change < 0).length;
+            const bestPct = (best.change / (best.price - best.change || 1)) * 100;
+            const worstPct = (worst.change / (worst.price - worst.change || 1)) * 100;
+            out += `<div style="background:linear-gradient(135deg,rgba(25,25,40,0.9),rgba(30,30,50,0.9));border:1px solid var(--border-color);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;gap:0;overflow-x:auto;align-items:stretch;">
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:62px;padding:4px 10px;border-right:1px solid var(--border-color);">
+                    <span style="font-size:0.68rem;color:var(--text-secondary);white-space:nowrap;margin-bottom:2px;">平均漲跌</span>
+                    <span style="font-size:0.95rem;font-weight:700;" class="${getColorClass(avgChg)}">${avgChg >= 0 ? '+' : ''}${avgChg.toFixed(2)}%</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:52px;padding:4px 10px;border-right:1px solid var(--border-color);">
+                    <span style="font-size:0.68rem;color:var(--text-secondary);margin-bottom:2px;">漲/跌數</span>
+                    <span style="font-size:0.9rem;font-weight:700;"><span class="text-up">${totalUp}</span> / <span class="text-down">${totalDn}</span></span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:72px;padding:4px 10px;border-right:1px solid var(--border-color);cursor:pointer;" onclick="viewStock('${best.symbol}')">
+                    <span style="font-size:0.68rem;color:var(--text-secondary);margin-bottom:2px;">最佳</span>
+                    <span style="font-size:0.82rem;font-weight:700;white-space:nowrap;">${best.name}</span>
+                    <span style="font-size:0.78rem;font-weight:700;" class="text-up">${bestPct >= 0 ? '+' : ''}${bestPct.toFixed(1)}%</span>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:72px;padding:4px 10px;cursor:pointer;" onclick="viewStock('${worst.symbol}')">
+                    <span style="font-size:0.68rem;color:var(--text-secondary);margin-bottom:2px;">最弱</span>
+                    <span style="font-size:0.82rem;font-weight:700;white-space:nowrap;">${worst.name}</span>
+                    <span style="font-size:0.78rem;font-weight:700;" class="text-down">${worstPct.toFixed(1)}%</span>
+                </div>
+            </div>`;
             out += `<h3 class="section-title"><i class="fa-solid fa-star" style="color:#f5c518;"></i> 自選觀察</h3><div style="display:flex; flex-direction:column; gap:10px;">${buildStockHtml(watchStocks)}</div>`;
         }
         out += `<h3 class="section-title"><i class="fa-solid fa-fire" style="color:#ff9800;"></i> 熱門行情</h3><div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">${buildStockHtml(trendStocks)}</div>`;
@@ -1420,6 +1447,10 @@ function renderStockDetail() {
     if (stock.isHK) {
         const upColor = 'var(--color-up)';
         const downColor = 'var(--color-down)';
+        const priceColor = stock.change > 0 ? upColor : (stock.change < 0 ? downColor : '#eee');
+        const changeIcon = stock.change >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        const changeSign = stock.change >= 0 ? '+' : '';
+        const pctSign = pctChange >= 0 ? '+' : '';
 
         return `
             <div style="background:#121212; color:#fff; min-height:100vh; font-family: inherit; padding-bottom: 80px;">
@@ -1433,52 +1464,52 @@ function renderStockDetail() {
                     </div>
                     
                     <div style="margin-top: 20px; display:flex; align-items: baseline; gap: 12px;">
-                        <span style="font-size: 3.2rem; font-weight: 700; color: ${upColor}; font-variant-numeric: tabular-nums;">6.300</span>
-                        <div style="display:flex; flex-direction:column; color: ${upColor}; font-weight: 700; font-size: 1.1rem; line-height: 1.2;">
-                            <span><i class="fa-solid fa-arrow-up"></i> +0.100</span>
-                            <span>+1.61%</span>
+                        <span style="font-size: 3.2rem; font-weight: 700; color: ${priceColor}; font-variant-numeric: tabular-nums;">${formatNumber(stock.price, 3)}</span>
+                        <div style="display:flex; flex-direction:column; color: ${priceColor}; font-weight: 700; font-size: 1.1rem; line-height: 1.2;">
+                            <span><i class="fa-solid ${changeIcon}"></i> ${changeSign}${formatNumber(stock.change, 3)}</span>
+                            <span>${pctSign}${formatNumber(pctChange, 2)}%</span>
                         </div>
                     </div>
-                    <div style="color:#888; font-size:0.85rem; margin-top:4px;">已收盤 03/31 16:05:50</div>
+                    <div style="color:#888; font-size:0.85rem; margin-top:4px;">${stock.isStatic ? '靜態報價' : '即時報價'}</div>
                 </div>
 
                 <div style="display:grid; grid-template-columns: repeat(4, 1fr); padding: 16px; gap: 16px 8px; font-size: 0.85rem; border-bottom: 1px solid #222; background: #121212;">
-                    <div><span style="color:#888;">最高</span><div style="color:${upColor}; margin-top:2px;">6.400</div></div>
-                    <div><span style="color:#888;">最低</span><div style="color:#4caf50; margin-top:2px;">6.030</div></div>
-                    <div><span style="color:#888;">開市</span><div style="color:#4caf50; margin-top:2px;">6.150</div></div>
-                    <div><span style="color:#888;">前收</span><div style="color:#eee; margin-top:2px;">6.200</div></div>
+                    <div><span style="color:#888;">最高</span><div style="color:${upColor}; margin-top:2px;">${formatNumber(stock.high, 3)}</div></div>
+                    <div><span style="color:#888;">最低</span><div style="color:${downColor}; margin-top:2px;">${formatNumber(stock.low, 3)}</div></div>
+                    <div><span style="color:#888;">開市</span><div style="color:#eee; margin-top:2px;">${formatNumber(stock.open, 3)}</div></div>
+                    <div><span style="color:#888;">前收</span><div style="color:#eee; margin-top:2px;">${formatNumber(stock.prevClose, 3)}</div></div>
                     
-                    <div><span style="color:#888;">成交量</span><div style="color:#eee; margin-top:2px;">1153.9萬</div></div>
-                    <div><span style="color:#888;">成交額</span><div style="color:#eee; margin-top:2px;">7085.87萬</div></div>
-                    <div><span style="color:#888;">平均價</span><div style="color:#4caf50; margin-top:2px;">6.140</div></div>
-                    <div><span style="color:#888;">振幅</span><div style="color:#eee; margin-top:2px;">5.97%</div></div>
+                    <div><span style="color:#888;">成交量</span><div style="color:#eee; margin-top:2px;">${stock.volumeStr || formatNumber(stock.volume, 0)}</div></div>
+                    <div><span style="color:#888;">成交額</span><div style="color:#eee; margin-top:2px;">${stock.turnoverAmount || '--'}</div></div>
+                    <div><span style="color:#888;">平均價</span><div style="color:#eee; margin-top:2px;">${stock.avgPriceStr || '--'}</div></div>
+                    <div><span style="color:#888;">振幅</span><div style="color:#eee; margin-top:2px;">${stock.amplitudeStr || '--'}</div></div>
                     
-                    <div><span style="color:#888;">市值</span><div style="color:#eee; margin-top:2px;">153.02億</div></div>
-                    <div><span style="color:#888;">總股本</span><div style="color:#eee; margin-top:2px;">24.29億</div></div>
-                    <div><span style="color:#888;">流通值</span><div style="color:#eee; margin-top:2px;">153.02億</div></div>
-                    <div><span style="color:#888;">流通股</span><div style="color:#eee; margin-top:2px;">24.29億</div></div>
+                    <div><span style="color:#888;">市值</span><div style="color:#eee; margin-top:2px;">${stock.marketCap || '--'}</div></div>
+                    <div><span style="color:#888;">總股本</span><div style="color:#eee; margin-top:2px;">${stock.totalShares || '--'}</div></div>
+                    <div><span style="color:#888;">流通值</span><div style="color:#eee; margin-top:2px;">${stock.circulatingValue || '--'}</div></div>
+                    <div><span style="color:#888;">流通股</span><div style="color:#eee; margin-top:2px;">${stock.circulatingShares || '--'}</div></div>
                     
-                    <div><span style="color:#888;">市盈率TTM</span><div style="color:#eee; margin-top:2px;">虧損</div></div>
-                    <div><span style="color:#888;">市盈率(靜)</span><div style="color:#eee; margin-top:2px;">虧損</div></div>
-                    <div><span style="color:#888;">市淨率</span><div style="color:#eee; margin-top:2px;">9.531</div></div>
-                    <div><span style="color:#888;">市盈率(動)</span><div style="color:#eee; margin-top:2px;">--</div></div>
+                    <div><span style="color:#888;">市盈率TTM</span><div style="color:#eee; margin-top:2px;">${stock.peTTM || '--'}</div></div>
+                    <div><span style="color:#888;">市盈率(靜)</span><div style="color:#eee; margin-top:2px;">${stock.peStatic || '--'}</div></div>
+                    <div><span style="color:#888;">市淨率</span><div style="color:#eee; margin-top:2px;">${stock.pb || '--'}</div></div>
+                    <div><span style="color:#888;">市盈率(動)</span><div style="color:#eee; margin-top:2px;">${stock.peDynamic || '--'}</div></div>
                     
-                    <div><span style="color:#888;">換手率</span><div style="color:#eee; margin-top:2px;">0.48%</div></div>
-                    <div><span style="color:#888;">委比</span><div style="color:${upColor}; margin-top:2px;">15.79%</div></div>
-                    <div><span style="color:#888;">量比</span><div style="color:#eee; margin-top:2px;">0.97</div></div>
-                    <div><span style="color:#888;">股息TTM</span><div style="color:#eee; margin-top:2px;">--</div></div>
+                    <div><span style="color:#888;">換手率</span><div style="color:#eee; margin-top:2px;">${stock.turnoverRateStr || '--'}</div></div>
+                    <div><span style="color:#888;">委比</span><div style="color:${upColor}; margin-top:2px;">${stock.bidRatio || '--'}</div></div>
+                    <div><span style="color:#888;">量比</span><div style="color:#eee; margin-top:2px;">${stock.volumeRatio || '--'}</div></div>
+                    <div><span style="color:#888;">股息TTM</span><div style="color:#eee; margin-top:2px;">${stock.divYieldTTM || '--'}</div></div>
                     
-                    <div><span style="color:#888;">股息率TTM</span><div style="color:#eee; margin-top:2px;">--</div></div>
-                    <div><span style="color:#888;">股息LFY</span><div style="color:#eee; margin-top:2px;">--</div></div>
-                    <div><span style="color:#888;">股息率LFY</span><div style="color:#eee; margin-top:2px;">--</div></div>
-                    <div><span style="color:#888;">52週最高</span><div style="color:${upColor}; margin-top:2px;">6.860</div></div>
+                    <div><span style="color:#888;">股息率TTM</span><div style="color:#eee; margin-top:2px;">${stock.divYieldRateTTM || '--'}</div></div>
+                    <div><span style="color:#888;">股息LFY</span><div style="color:#eee; margin-top:2px;">${stock.divYieldLFY || '--'}</div></div>
+                    <div><span style="color:#888;">股息率LFY</span><div style="color:#eee; margin-top:2px;">${stock.divYieldRateLFY || '--'}</div></div>
+                    <div><span style="color:#888;">52週最高</span><div style="color:${upColor}; margin-top:2px;">${stock.high52 || '--'}</div></div>
                     
-                    <div><span style="color:#888;">52週最低</span><div style="color:#4caf50; margin-top:2px;">1.120</div></div>
-                    <div><span style="color:#888;">歷史最高</span><div style="color:${upColor}; margin-top:2px;">85947.635</div></div>
-                    <div><span style="color:#888;">歷史最低</span><div style="color:#4caf50; margin-top:2px;">-0.025</div></div>
-                    <div><span style="color:#888;">每手</span><div style="color:#eee; margin-top:2px;">10000股</div></div>
+                    <div><span style="color:#888;">52週最低</span><div style="color:${downColor}; margin-top:2px;">${stock.low52 || '--'}</div></div>
+                    <div><span style="color:#888;">歷史最高</span><div style="color:${upColor}; margin-top:2px;">${stock.historyHigh || '--'}</div></div>
+                    <div><span style="color:#888;">歷史最低</span><div style="color:${downColor}; margin-top:2px;">${stock.historyLow || '--'}</div></div>
+                    <div><span style="color:#888;">每手</span><div style="color:#eee; margin-top:2px;">${stock.lotSize || '--'}</div></div>
                     
-                    <div><span style="color:#888;">Beta</span><div style="color:#eee; margin-top:2px;">0.421</div></div>
+                    <div><span style="color:#888;">Beta</span><div style="color:#eee; margin-top:2px;">${stock.beta || '--'}</div></div>
                 </div>
 
                 <div style="display:flex; border-bottom: 1px solid #222; background: #121212;">
@@ -2377,6 +2408,60 @@ function renderPortfolioPage() {
                     </div>
                 </div>
             </div>`;
+    } else if (window.portfolioTab === 'buying-power') {
+        let totalHeldTwd = state.portfolio.reduce((sum, pos) => {
+            const st = state.marketData.find(x => x.symbol === pos.symbol);
+            const price = st ? st.price : pos.avgPrice;
+            const r = (st && st.isHK) ? CONFIG.HKD_RATE : 1;
+            return sum + (price * r * pos.shares);
+        }, 0);
+        const totalEquityEst = state.balance + totalHeldTwd;
+        const usedPct = totalEquityEst > 0 ? (totalHeldTwd / totalEquityEst * 100) : 0;
+        const freePct = 100 - usedPct;
+        const tsmc = state.marketData.find(s => s.symbol === '2330');
+        const refStock = tsmc || state.marketData.filter(s => !s.isIndex && s.price > 0).sort((a, b) => a.price - b.price)[0];
+        const refLot = refStock ? (refStock.lotSizeVal || 1000) : 1000;
+        const refRate = (refStock && refStock.isHK) ? CONFIG.HKD_RATE : 1;
+        const refCostPerLot = refStock ? (refStock.price * refRate * refLot * 1.001425) : 1;
+        const maxLots = refStock ? Math.floor(state.balance / refCostPerLot) : 0;
+        return topHtml + `
+            <div style="padding: 16px;">
+                <h3 style="color:var(--text-primary); font-size:1.1rem; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-wallet" style="color:var(--accent-blue);"></i> 帳戶購買力
+                </h3>
+                <div class="card" style="padding:16px; margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+                        <span style="color:var(--text-secondary); font-size:0.9rem;">可用餘額 (交割帳戶)</span>
+                        <span style="font-size:1.4rem; font-weight:700; color:var(--accent-blue); font-family:var(--font-mono);">$${formatNumber(state.balance)}</span>
+                    </div>
+                    <div style="height:8px; background:var(--border-color); border-radius:4px; overflow:hidden; margin-bottom:6px;">
+                        <div style="height:100%; width:${freePct.toFixed(1)}%; background:var(--accent-blue); border-radius:4px;"></div>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-secondary);">
+                        <span>可用 ${freePct.toFixed(1)}%</span>
+                        <span>已部署 ${usedPct.toFixed(1)}%</span>
+                    </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                    <div class="card" style="padding:14px;">
+                        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:4px;">已部署資金</div>
+                        <div style="font-size:1.15rem; font-weight:700; font-family:var(--font-mono);">$${formatNumber(totalHeldTwd)}</div>
+                    </div>
+                    <div class="card" style="padding:14px;">
+                        <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:4px;">帳戶總估値</div>
+                        <div style="font-size:1.15rem; font-weight:700; font-family:var(--font-mono);">$${formatNumber(totalEquityEst)}</div>
+                    </div>
+                </div>
+                ${refStock ? `
+                <div class="card" style="padding:14px; border:1px solid var(--accent-blue); background:rgba(60,140,250,0.05);">
+                    <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:8px;"><i class="fa-solid fa-calculator"></i> 試算：以目前餘額最多可買</div>
+                    <div style="display:flex; align-items:baseline; gap:8px;">
+                        <span style="font-size:1.8rem; font-weight:700; color:var(--accent-blue);">${formatNumber(maxLots, 0)}</span>
+                        <span style="color:var(--text-secondary); font-size:0.9rem;">股 ${refStock.name} (現價 ${formatNumber(refStock.price)})</span>
+                    </div>
+                </div>` : ''}
+            </div>
+        `;
     } else {
         // History Render 
         let histHtml = ''; let totalRealized = state.history.reduce((sum, h) => sum + h.profit, 0);
@@ -2676,9 +2761,19 @@ function buildTradePage() {
                 .join('') || '<option disabled>查對相符股票</option>'}
                     </select>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 16px; padding-bottom:12px; border-bottom:1px dashed var(--border-color); font-size: 1.1rem;">
-                    <span style="color:var(--text-secondary);">目前即時報價</span>
-                    <span class="${getColorClass(stock ? stock.change : 0)}" style="font-weight: 600;">${formatNumber(currentPrice)}</span>
+                <div style="margin-bottom: 16px; padding-bottom:12px; border-bottom:1px dashed var(--border-color);">
+                    <div style="display:flex; justify-content:space-between; font-size:1.1rem; margin-bottom:6px;">
+                        <span style="color:var(--text-secondary);">目前即時報價</span>
+                        <span class="${getColorClass(stock ? stock.change : 0)}" style="font-weight: 600;">${formatNumber(currentPrice)}</span>
+                    </div>
+                    ${stock && stock.high && stock.low && stock.high !== stock.low ? `
+                    <div style="display:flex; gap:10px; font-size:0.8rem; color:var(--text-secondary); align-items:center;">
+                        <span style="white-space:nowrap;">今日: <strong class="text-up">${formatNumber(stock.high)}</strong> / <strong class="text-down">${formatNumber(stock.low)}</strong></span>
+                        <div style="flex:1; height:5px; background:var(--border-color); border-radius:3px; position:relative;">
+                            <div style="position:absolute;left:0;top:0;bottom:0;right:0;background:linear-gradient(to right,var(--color-down),#888,var(--color-up));border-radius:3px;"></div>
+                            <div style="position:absolute;top:-3px;bottom:-3px;width:7px;background:white;border-radius:3px;box-shadow:0 0 3px rgba(0,0,0,0.5);left:${Math.min(98,Math.max(2,((currentPrice-stock.low)/(stock.high-stock.low))*100)).toFixed(1)}%;transform:translateX(-50%);"></div>
+                        </div>
+                    </div>` : ''}
                 </div>
                 
                 <div class="form-group">
@@ -2713,6 +2808,7 @@ function buildTradePage() {
                     </div>
                     <input type="number" id="trade-shares" class="form-control tabular-nums" value="${tradeState.shares}" min="${isHK ? currentLotSize : 1}" step="${isHK ? currentLotSize : 1}">
                     <div class="shortcut-group">
+                        <button class="btn-shortcut" data-lot="1">1 手 (${currentLotSize}股)</button>
                         <button class="btn-shortcut" data-ratio="0.25">1/4 倉</button>
                         <button class="btn-shortcut" data-ratio="0.5">半倉</button>
                         <button class="btn-shortcut" data-ratio="1">全倉</button>
@@ -2812,6 +2908,13 @@ function buildTradePage() {
         // Add Shortcut Logic INSIDE renderForm to persist across re-renders
         container.querySelectorAll('.btn-shortcut').forEach(btn => {
             btn.onclick = () => {
+                // Handle "1 手" lot button
+                if (btn.hasAttribute('data-lot')) {
+                    const stock = state.marketData.find(s => s.symbol === tradeState.symbol);
+                    tradeState.shares = (stock && stock.lotSizeVal) ? stock.lotSizeVal : 1000;
+                    renderForm();
+                    return;
+                }
                 const ratio = parseFloat(btn.getAttribute('data-ratio'));
                 const side = tradeState.side;
                 const symbol = tradeState.symbol;
@@ -2819,7 +2922,8 @@ function buildTradePage() {
                 if (!stock) return;
 
                 const price = stock.price;
-                const rate = (symbol === '00326' || symbol === '02225') ? CONFIG.HKD_RATE : 1;
+                const stockForRate = state.marketData.find(s => s.symbol === symbol);
+                const rate = (stockForRate && stockForRate.isHK) ? CONFIG.HKD_RATE : 1;
 
                 let targetShares = 0;
                 let opType = 'close';
@@ -3029,6 +3133,36 @@ function updateStockUIDetail(stock, tickDiff = 0) {
     cEl.classList.add(getColorClass(stock.change));
 }
 
+// --- PnL Alert System (Feature 1) ---
+const PNL_ALERT_LEVELS = [-10, -5, 5, 10];
+function checkPortfolioPnlAlerts() {
+    state.portfolio.forEach(pos => {
+        const stock = state.marketData.find(s => s.symbol === pos.symbol);
+        if (!stock) return;
+        const rate = (stock && stock.isHK) ? CONFIG.HKD_RATE : 1;
+        const localAvgPrice = pos.avgPrice / rate;
+        const localCost = localAvgPrice * pos.shares;
+        const localCurrentVal = stock.price * pos.shares;
+        let localPnlPct = localCost > 0 ? ((localCurrentVal - localCost) / localCost) * 100 : 0;
+        if (pos.marginType === 'short') localPnlPct = -localPnlPct;
+        if (!pos._pnlAlertFired) pos._pnlAlertFired = {};
+        PNL_ALERT_LEVELS.forEach(level => {
+            const key = String(level);
+            if (pos._pnlAlertFired[key]) return;
+            const triggered = (level > 0 && localPnlPct >= level) || (level < 0 && localPnlPct <= level);
+            if (triggered) {
+                pos._pnlAlertFired[key] = true;
+                const emoji = level > 0 ? '\uD83C\uDFAF' : '\u26A0\uFE0F';
+                const label = level > 0 ? '\u7372\u5229\u9054' : '\u865f\u640d\u9054';
+                showToast(emoji + ' ' + pos.name + ' ' + label + ' ' + Math.abs(level) + '%\uff08' + (localPnlPct >= 0 ? '+' : '') + localPnlPct.toFixed(2) + '%\uff09', level > 0 ? 'success' : 'error');
+                if (typeof showSystemNotification === 'function') {
+                    showSystemNotification('\u6301\u5009\u640d\u76ca\u63d0\u9192', pos.name + ' ' + label + ' ' + Math.abs(level) + '%\uff0c\u76ee\u524d\u5831\u916c\u7387 ' + (localPnlPct >= 0 ? '+' : '') + localPnlPct.toFixed(2) + '%');
+                }
+            }
+        });
+    });
+}
+
 function startMarketSimulation() {
     window.marketSimInterval = setInterval(() => { // A6: save interval ID
         if (window.checkMarketStatus) window.checkMarketStatus();
@@ -3082,6 +3216,7 @@ function startMarketSimulation() {
             }
         });
 
+        checkPortfolioPnlAlerts();
         let t1 = checkTriggers();
         let t2 = checkPendingOrders();
 
@@ -3157,7 +3292,7 @@ function saveState() {
         balance: state.balance, portfolio: state.portfolio, orders: state.orders,
         history: state.history, triggers: state.triggers, assetHistory: state.assetHistory,
         watchlist: state.watchlist, isLightMode: state.isLightMode, colorMode: state.colorMode,
-        alerts: state.alerts,
+        alerts: state.alerts, feeDiscount: state.feeDiscount,
         savedDate: new Date().toDateString()
     };
     localStorage.setItem('stockState_' + window.currentAccountId, JSON.stringify(saveData));
@@ -3181,6 +3316,7 @@ function loadState() {
 
             if (parsed.watchlist) state.watchlist = parsed.watchlist;
             if (parsed.alerts) state.alerts = parsed.alerts;
+            if (parsed.feeDiscount !== undefined) state.feeDiscount = parsed.feeDiscount;
 
             if (parsed.savedDate && parsed.savedDate !== new Date().toDateString()) {
                 state.todayTrades = new Set();
