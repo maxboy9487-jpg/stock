@@ -2820,7 +2820,16 @@ function buildTradePage() {
                         <label class="text-label">委託股數 ${isHK ? `(${currentLotSize} 股為單位)` : '(自由輸入)'}</label>
                         <span style="font-size:0.8rem; color:var(--text-secondary);">目前持有: <strong style="color:var(--accent-blue);" class="tabular-nums">${state.portfolio.find(p => p.symbol === tradeState.symbol && p.marginType === tradeState.marginType)?.shares || 0}</strong> 股</span>
                     </div>
-                    <input type="number" id="trade-shares" class="form-control tabular-nums" value="${tradeState.shares}" min="${isHK ? currentLotSize : 1}" step="${isHK ? currentLotSize : 1}">
+                    <div style="display:flex; gap:12px;">
+                        <div style="flex:1;">
+                            <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:4px;">手數 (幾手)</div>
+                            <input type="number" id="trade-lots" class="form-control tabular-nums" value="${Math.floor(tradeState.shares / currentLotSize) || 0}" min="0" step="1">
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:4px;">總股數</div>
+                            <input type="number" id="trade-shares" class="form-control tabular-nums" value="${tradeState.shares}" min="${isHK ? currentLotSize : 1}" step="${isHK ? currentLotSize : 1}">
+                        </div>
+                    </div>
                     <div class="shortcut-group">
                         <button class="btn-shortcut" data-lot="1">1 手 (${currentLotSize}股)</button>
                         <button class="btn-shortcut" data-ratio="0.25">1/4 倉</button>
@@ -2905,6 +2914,15 @@ function buildTradePage() {
 
         const sharesIn = container.querySelector('#trade-shares');
         sharesIn.oninput = (e) => { tradeState.shares = parseInt(e.target.value) || 0; renderForm(); };
+
+        const lotsIn = container.querySelector('#trade-lots');
+        if (lotsIn) {
+            lotsIn.oninput = (e) => { 
+                const lots = parseInt(e.target.value) || 0;
+                tradeState.shares = lots * currentLotSize; 
+                renderForm(); 
+            };
+        }
 
         const priceIn = container.querySelector('#trade-price');
         if (priceIn) priceIn.oninput = (e) => { tradeState.limitPrice = parseFloat(e.target.value) || 0; renderForm(); };

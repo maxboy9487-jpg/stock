@@ -143,7 +143,7 @@ window.parsedMarketData.push({
     marketCap: '153.02億', totalShares: '24.29億', circulatingShares: '24.29億', circulatingValue: '153.02億',
     peTTM: '虧損', peStatic: '虧損', pb: 9.531, peDynamic: '--',
     turnoverRateStr: '0.48%', bidRatio: '15.79%', volumeRatio: 0.97, avgPriceStr: '7.77', amplitudeStr: '5.97%',
-    high52: 7.77, low52: 1.120, historyHigh: 85947.635, historyLow: -0.025, lotSize: '10000股', lotSizeVal: 10000,
+    high52: 7.77, low52: 1.120, historyHigh: 85947.635, historyLow: -0.025, lotSize: '2000股', lotSizeVal: 2000,
     beta: 0.421, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
     isStatic: true, isHK: true 
 });
