@@ -499,7 +499,7 @@ function submitOrder(tradeParams, isTriggeredBySmart = false) {
 
     const order = {
         id: Date.now() + Math.floor(Math.random() * 100),
-        docNo: '90' + Math.floor(10000000 + Math.random() * 90000000).toString(),
+        docNo: '900' + Math.floor(1000 + Math.random() * 9000).toString(),
         symbol: stock.symbol, name: stock.name, side: side,
         type: priceType, price: estPrice, tif: tif || 'ROD', marginType: marginType,
         shares: shares, status: 'pending',
@@ -2543,8 +2543,8 @@ function renderMorePage() {
                 </div>
                 <div style="display:flex; flex-direction:column; gap:12px;">
                     <div style="display:flex; gap:10px; align-items:center;">
-                        <span style="font-size:0.9rem; color:var(--text-secondary); white-space:nowrap; width:70px;">委託書號:</span>
-                        <input type="text" class="form-control doc-no-input" data-id="${entry.id}" data-type="${entry.type}" value="${entry.docNo || ''}" maxlength="10" placeholder="10位書號" style="flex:1; background:var(--bg-input); border-color:#444;">
+                        <span style="font-size:0.9rem; color:var(--text-secondary); white-space:nowrap; width:70px;">${entry.type === 'order' ? '委託書號' : '成交書號'}:</span>
+                        <input type="text" class="form-control doc-no-input" data-id="${entry.id}" data-type="${entry.type}" value="${entry.docNo || ''}" maxlength="7" placeholder="7位書號" style="flex:1; background:var(--bg-input); border-color:#444;">
                     </div>
                     <div style="display:flex; gap:10px; align-items:center;">
                         <span style="font-size:0.9rem; color:var(--text-secondary); white-space:nowrap; width:70px;">時間:</span>
@@ -2586,10 +2586,24 @@ window.saveBatchEdits = function() {
         const newVal = input.value.trim();
         if (type === 'order') {
             const order = state.orders.find(o => o.id == id);
-            if (order) order.docNo = newVal;
+            if (order) {
+                const oldDocNo = order.docNo;
+                order.docNo = newVal;
+                // Sync to history
+                state.history.forEach(h => {
+                    if (h.docNo === oldDocNo) h.docNo = newVal;
+                });
+            }
         } else {
             const hist = state.history.find(h => h.id == id);
-            if (hist) hist.docNo = newVal;
+            if (hist) {
+                const oldDocNo = hist.docNo;
+                hist.docNo = newVal;
+                // Sync to order
+                state.orders.forEach(o => {
+                    if (o.docNo === oldDocNo) o.docNo = newVal;
+                });
+            }
         }
     });
 
