@@ -158,6 +158,17 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 
+window.parsedMarketData.push({ 
+    symbol: '01854', name: '中國萬天控股', price: 1.120, change: 0.030, prevClose: 1.090, 
+    open: 1.090, high: 1.120, low: 1.090, volume: 15138000, volumeStr: '1513.8萬', turnoverAmount: '1695.4萬', 
+    marketCap: '22.82億', totalShares: '20.38億', circulatingShares: '20.38億', circulatingValue: '22.82億',
+    peTTM: '虧損', peStatic: '虧損', pb: 2.75, peDynamic: '--',
+    turnoverRateStr: '0.74%', bidRatio: '--', volumeRatio: '--', avgPriceStr: '1.097', amplitudeStr: '2.75%',
+    high52: 1.420, low52: 0.640, historyHigh: 3.435, historyLow: 0.117, lotSize: '10000股', lotSizeVal: 10000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
 
 window.parsedMarketData.push({ 
     symbol: '02940', name: '經緯天地', price: 1.890, change: -3.272, prevClose: 5.162, 
