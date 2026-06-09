@@ -131,6 +131,7 @@ const rawMarketData = `
 5284	jpp-KY	287.5	▲15.50	+5.70%	5.31%	5.33%	278.5	292.5	278	272	2,008	5.773
 5439	高技	287	▲11.50	+4.17%	-1.54%	4.17%	281.5	293	281.5	275.5	2,481	7.120
 6664	群翊	287	▲12.50	+4.55%	2.50%	3.64%	278	288	278	274.5	581	1.667
+5425	台半	93	▲1.50	+1.64%	+0.54%	1.64%	91.8	93.5	91.0	91.5	2,845	5.120
 `;
 
 window.parsedMarketData = [];
@@ -177,6 +178,17 @@ window.parsedMarketData.push({
     peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
     turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '5.03', amplitudeStr: '0.00%',
     high52: 5.03, low52: 5.03, historyHigh: 5.03, historyLow: 5.03, lotSize: '3200股', lotSizeVal: 3200,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
+window.parsedMarketData.push({ 
+    symbol: '00805', name: '新吉奧房車', price: 3.3, change: 0.00, prevClose: 3.3, 
+    open: 3.3, high: 3.3, low: 3.3, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '3.3', amplitudeStr: '0.00%',
+    high52: 3.3, low52: 3.3, historyHigh: 3.3, historyLow: 3.3, lotSize: '2000股', lotSizeVal: 2000,
     beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
     isStatic: true, isHK: true 
 });
@@ -247,6 +259,7 @@ enrichStock('2603', '航運');
 enrichStock('2609', '航運');
 enrichStock('3529', '半導體', true);
 enrichStock('5274', '半導體', true);
+enrichStock('5425', '半導體');
 window.MockMarketEngine = {
     globalNews: [],
     globalTrend: 0,

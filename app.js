@@ -59,7 +59,7 @@ const state = {
     orders: [],
     history: [],
     triggers: [],
-    watchlist: ['2330', '2454', '00326'],
+    watchlist: ['2330', '2454', '00326', '00805'],
     marketData: window.parsedMarketData || [],
     currentBranch: `(台)台南 3815467`
 };
@@ -90,7 +90,7 @@ function resetStateInMemory() {
     state.history = [];
     state.triggers = [];
     state.assetHistory = [];
-    state.watchlist = ['2330', '2454', '00326'];
+    state.watchlist = ['2330', '2454', '00326', '00805'];
     state.todayTrades = new Set();
 }
 
