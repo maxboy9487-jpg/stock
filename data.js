@@ -193,6 +193,16 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 
+window.parsedMarketData.push({ 
+    symbol: '00918', name: '龍翼航空科技', price: 1.13, change: 0.00, prevClose: 1.13, 
+    open: 1.13, high: 1.13, low: 1.13, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '1.13', amplitudeStr: '0.00%',
+    high52: 1.13, low52: 1.13, historyHigh: 1.13, historyLow: 1.13, lotSize: '6000股', lotSizeVal: 6000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
 
 
 rawMarketData.trim().split('\n').forEach(line => {
