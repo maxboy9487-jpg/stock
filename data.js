@@ -215,6 +215,17 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 
+window.parsedMarketData.push({ 
+    symbol: '00209', name: '萬維智能科技', price: 0.57, change: 0.00, prevClose: 0.57, 
+    open: 0.57, high: 0.57, low: 0.57, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '0.57', amplitudeStr: '0.00%',
+    high52: 0.57, low52: 0.57, historyHigh: 0.57, historyLow: 0.57, lotSize: '10000股', lotSizeVal: 10000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
 
 rawMarketData.trim().split('\n').forEach(line => {
     if(!line.trim()) return;

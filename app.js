@@ -1040,6 +1040,26 @@ function generateMockNews(stock) {
         `).join('');
     }
 
+    if (stock.symbol === '00209') {
+        const selected = [
+            { title: "萬維智能科技 (00209.HK) 宣佈自 5 月 12 日起中文股份簡稱正式由「瀛晟科學」更改為「萬維智能科技」", source: "[AASTOCKS]", time: "05/08 17:10" },
+            { title: "萬維智能科技 (00209.HK) 擬實施「10股合為1股」合併計劃，未來每手買賣單位將調整", source: "[智通財經]", time: "06/02 08:30" },
+            { title: "萬維智能科技 (00209.HK) 近日錄得多次大額轉倉交易，市場交投顯著活躍", source: "[東方財富網]", time: "06/05 16:05" }
+        ];
+        return selected.map(n => `
+        <div class="card" style="padding: 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:8px; margin-bottom:8px;">
+            <div style="color:var(--text-primary); font-weight:600; margin-bottom:4px; font-size:0.95rem;">${n.title}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <div style="color:var(--text-secondary); font-size:0.8rem;">${n.source} ${n.time}</div>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn btn-outline" style="padding:2px 8px; font-size:0.75rem; color:var(--color-up); border-color:var(--color-up);" onclick="triggerNewsEvent('${stock.symbol}', 'pump')">利多拉抬</button>
+                    <button class="btn btn-outline" style="padding:2px 8px; font-size:0.75rem; color:var(--color-down); border-color:var(--color-down);" onclick="triggerNewsEvent('${stock.symbol}', 'dump')">利空打壓</button>
+                </div>
+            </div>
+        </div>
+        `).join('');
+    }
+
     const uptrends = [
         `外資連三買！${stock.name} 突破前高有望，分析師調高目標價`,
         `${stock.name} 獲大單加持，第四季營收有望衝出新高點`,
