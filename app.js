@@ -1020,6 +1020,26 @@ function generateMockNews(stock) {
         `).join('');
     }
 
+    if (stock.symbol === '01780') {
+        const selected = [
+            { title: "榮尊國際控股 (01780.HK) 宣佈要約人楊敬堯已完成收購約 13.55% 股份，持股增至 33.39% 觸發強制性全面要約義務", source: "[AASTOCKS]", time: "04/09 18:42" },
+            { title: "榮尊國際控股 (01780.HK) 宣佈延期寄發強制性要約綜合文件，不遲於 6 月 18 日寄發", source: "[智通財經]", time: "05/20 09:15" },
+            { title: "榮尊國際控股 (01780.HK) 近日股價異常波動，市場關注強制性要約進展與倉位異動風險", source: "[東方財富網]", time: "06/10 16:30" }
+        ];
+        return selected.map(n => `
+        <div class="card" style="padding: 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:8px; margin-bottom:8px;">
+            <div style="color:var(--text-primary); font-weight:600; margin-bottom:4px; font-size:0.95rem;">${n.title}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <div style="color:var(--text-secondary); font-size:0.8rem;">${n.source} ${n.time}</div>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn btn-outline" style="padding:2px 8px; font-size:0.75rem; color:var(--color-up); border-color:var(--color-up);" onclick="triggerNewsEvent('${stock.symbol}', 'pump')">利多拉抬</button>
+                    <button class="btn btn-outline" style="padding:2px 8px; font-size:0.75rem; color:var(--color-down); border-color:var(--color-down);" onclick="triggerNewsEvent('${stock.symbol}', 'dump')">利空打壓</button>
+                </div>
+            </div>
+        </div>
+        `).join('');
+    }
+
     const uptrends = [
         `外資連三買！${stock.name} 突破前高有望，分析師調高目標價`,
         `${stock.name} 獲大單加持，第四季營收有望衝出新高點`,

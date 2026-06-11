@@ -204,6 +204,17 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 
+window.parsedMarketData.push({ 
+    symbol: '01780', name: '榮尊國際控股', price: 1.64, change: 0.00, prevClose: 1.64, 
+    open: 1.64, high: 1.64, low: 1.64, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '1.64', amplitudeStr: '0.00%',
+    high52: 1.64, low52: 1.64, historyHigh: 1.64, historyLow: 1.64, lotSize: '2500股', lotSizeVal: 2500,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
 
 rawMarketData.trim().split('\n').forEach(line => {
     if(!line.trim()) return;
