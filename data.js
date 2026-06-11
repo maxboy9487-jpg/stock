@@ -226,6 +226,17 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 
+window.parsedMarketData.push({ 
+    symbol: '01850', name: '鴻盛昌資源', price: 3.07, change: 0.00, prevClose: 3.07, 
+    open: 3.07, high: 3.07, low: 3.07, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '3.07', amplitudeStr: '0.00%',
+    high52: 3.07, low52: 3.07, historyHigh: 3.07, historyLow: 3.07, lotSize: '10000股', lotSizeVal: 10000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
 
 rawMarketData.trim().split('\n').forEach(line => {
     if(!line.trim()) return;
