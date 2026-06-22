@@ -252,7 +252,16 @@ window.manualPriceUpdate = function (symbol, newPrice) {
 window.setOrderMatching = function (shouldMatch) {
     state.shouldMatchOrders = shouldMatch;
     saveState();
-    showToast(shouldMatch ? '已開啟自動成交' : '已關閉自動成交（委託將維持「委託傳送中」狀態）', shouldMatch ? 'success' : 'warning');
+    let msg = '已開啟自動成交';
+    let type = 'success';
+    if (shouldMatch === false) {
+        msg = '已關閉自動成交（委託將維持「委託傳送中」狀態）';
+        type = 'warning';
+    } else if (shouldMatch === 'failed') {
+        msg = '已設定委託狀態為「委託失敗」';
+        type = 'error';
+    }
+    showToast(msg, type);
     if (state.currentPage === 'portfolio') renderPage('portfolio');
 };
 
@@ -530,7 +539,9 @@ function submitOrder(tradeParams, isTriggeredBySmart = false) {
 
     let executed = false; let execPrice = 0;
     // Market orders or Limit matching only if NOT in disposition delay AND Market is OPEN
-    if (state.shouldMatchOrders !== false && order.status !== 'pending-disposition' && state.marketStatus === 'open') {
+    if (state.shouldMatchOrders === 'failed') {
+        order.status = 'failed';
+    } else if (state.shouldMatchOrders !== false && order.status !== 'pending-disposition' && state.marketStatus === 'open') {
         if (priceType === 'market') { executed = true; execPrice = stock.price; }
         else {
             if (side === 'buy' && limitPrice >= stock.price) { executed = true; execPrice = stock.price; }
@@ -540,7 +551,15 @@ function submitOrder(tradeParams, isTriggeredBySmart = false) {
 
     state.orders.unshift(order);
 
-    if (executed) {
+    if (order.status === 'failed') {
+        if (!isTriggeredBySmart) {
+            showToast('📤 委託已送出...', 'info');
+            setTimeout(() => {
+                showToast('❌ 委託失敗: 模擬撮合失敗 (委託已自動取消)', 'error');
+                if (state.currentPage === 'portfolio') renderPage('portfolio');
+            }, 800);
+        }
+    } else if (executed) {
         if (!isTriggeredBySmart) {
             showToast('📤 委託已送出...', 'info');
             setTimeout(() => {
@@ -2156,8 +2175,9 @@ function renderPortfolioPage() {
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="color:white; font-size:0.95rem; font-weight:600;">下單後要不要成交</span>
                         <div style="display:flex; gap:8px;">
-                            <button id="toggle-match-yes" style="background: ${state.shouldMatchOrders !== false ? '#4db6ac' : '#333'}; color: ${state.shouldMatchOrders !== false ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setOrderMatching(true)">要成交</button>
+                            <button id="toggle-match-yes" style="background: ${state.shouldMatchOrders === true || state.shouldMatchOrders === undefined ? '#4db6ac' : '#333'}; color: ${state.shouldMatchOrders === true || state.shouldMatchOrders === undefined ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setOrderMatching(true)">要成交</button>
                             <button id="toggle-match-no" style="background: ${state.shouldMatchOrders === false ? '#4db6ac' : '#333'}; color: ${state.shouldMatchOrders === false ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setOrderMatching(false)">不成交 (委託中)</button>
+                            <button id="toggle-match-failed" style="background: ${state.shouldMatchOrders === 'failed' ? '#4db6ac' : '#333'}; color: ${state.shouldMatchOrders === 'failed' ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setOrderMatching('failed')">委託失敗</button>
                         </div>
                     </div>
                 </div>
@@ -2225,6 +2245,7 @@ function renderPortfolioPage() {
                 if (o.status === 'pending') statusLabel = '委託傳送中';
                 else if (o.status === 'pending-disposition') statusLabel = '分盤中';
                 else if (o.status === 'executed') statusLabel = '全部成交';
+                else if (o.status === 'failed') statusLabel = '委託失敗';
                 else statusLabel = '已撤銷';
 
                 let isCancellable = (o.status === 'pending' || o.status === 'pending-disposition');
@@ -3161,7 +3182,7 @@ function checkTriggers() {
 }
 
 function checkPendingOrders() {
-    if (state.shouldMatchOrders === false) {
+    if (state.shouldMatchOrders === false || state.shouldMatchOrders === 'failed') {
         return false;
     }
     let triggered = false;
@@ -3412,7 +3433,7 @@ function saveState() {
         history: state.history, triggers: state.triggers, assetHistory: state.assetHistory,
         watchlist: state.watchlist, isLightMode: state.isLightMode, colorMode: state.colorMode,
         alerts: state.alerts, feeDiscount: state.feeDiscount,
-        shouldMatchOrders: state.shouldMatchOrders !== false,
+        shouldMatchOrders: state.shouldMatchOrders,
         savedDate: new Date().toDateString()
     };
     localStorage.setItem('stockState_' + window.currentAccountId, JSON.stringify(saveData));
