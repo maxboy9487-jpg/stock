@@ -244,10 +244,107 @@ window.manualPriceUpdate = function (symbol, newPrice) {
     showToast(`✅ ${stock.name} (${symbol}) 價位已調整至 ${p}`, 'success');
 
     // Refresh relevant views
-    if (state.currentPage === 'portfolio') renderPage('portfolio');
+    if (state.currentPage === 'portfolio') renderPage('portfolio', { keepScroll: true });
     if (state.currentPage === 'stockDetail' && state.currentStock === symbol) renderPage('stockDetail');
     if (state.currentPage === 'home') renderPage('home');
 };
+
+// --- Price Manager Dropdown Helper Functions ---
+window.showPriceMgrDropdown = function() {
+    const listEl = document.getElementById('price-mgr-dropdown-list');
+    if (listEl) {
+        listEl.style.display = 'block';
+        const inputEl = document.getElementById('stock-search-input');
+        window.filterPriceMgrDropdown(inputEl ? inputEl.value : '');
+    }
+};
+
+window.filterPriceMgrDropdown = function(query) {
+    const listEl = document.getElementById('price-mgr-dropdown-list');
+    if (!listEl) return;
+    
+    let searchWord = query.trim();
+    const match = query.match(/\(([^)]+)\)/);
+    if (match && window.priceMgrSelectedSymbol === match[1]) {
+        searchWord = '';
+    }
+    
+    const stocks = state.marketData.filter(s => !s.isIndex);
+    const filtered = stocks.filter(s => 
+        s.symbol.includes(searchWord) || 
+        s.name.toLowerCase().includes(searchWord.toLowerCase())
+    );
+    
+    if (filtered.length === 0) {
+        listEl.innerHTML = '<div style="padding:12px; color:var(--text-secondary); text-align:center; font-size:0.95rem;">未找到相符的股票</div>';
+        return;
+    }
+    
+    listEl.innerHTML = filtered.slice(0, 30).map(s => {
+        const isSelected = window.priceMgrSelectedSymbol === s.symbol;
+        return `
+            <div class="dropdown-item" style="padding:12px 16px; cursor:pointer; color:var(--text-primary); border-bottom:1px solid var(--border-color); font-size:0.95rem; display:flex; justify-content:space-between; align-items:center; background:${isSelected ? 'rgba(74, 134, 255, 0.15)' : 'none'};" onclick="window.selectPriceMgrStock('${s.symbol}')" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='${isSelected ? 'rgba(74, 134, 255, 0.15)' : 'none'}'">
+                <span style="font-weight:${isSelected ? '600' : '400'}; color:${isSelected ? 'var(--accent-blue)' : 'var(--text-primary)'};">${s.name} (${s.symbol})</span>
+                <span style="color:var(--text-secondary); font-family:var(--font-mono); font-size:0.9rem;">${s.price}</span>
+            </div>
+        `;
+    }).join('');
+};
+
+window.selectPriceMgrStock = function(symbol) {
+    window.priceMgrSelectedSymbol = symbol;
+    const stock = state.marketData.find(s => s.symbol === symbol);
+    if (!stock) return;
+    
+    const inputEl = document.getElementById('stock-search-input');
+    if (inputEl) {
+        inputEl.value = `${stock.name} (${stock.symbol})`;
+        inputEl.blur();
+    }
+    
+    const listEl = document.getElementById('price-mgr-dropdown-list');
+    if (listEl) listEl.style.display = 'none';
+    
+    const cardEl = document.getElementById('selected-stock-card');
+    if (cardEl) {
+        cardEl.innerHTML = window.renderSelectedStockCardContent(stock);
+    }
+};
+
+window.renderSelectedStockCardContent = function(stock) {
+    return `
+        <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">${stock.name} (${stock.symbol})</div>
+                    <div style="font-size:0.9rem; color:var(--text-secondary); margin-top:4px;">目前價格：<strong style="color:var(--text-primary); font-family:var(--font-mono); font-size:1.05rem;">${stock.price}</strong></div>
+                </div>
+                <div style="text-align:right;">
+                    <span class="badge" style="background:${stock.isHK ? '#ffca28' : '#4a86ff'}; color:black; font-size:0.75rem; padding:2px 6px; border-radius:4px; font-weight:700;">${stock.isHK ? '複委託/港股' : '台股'}</span>
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:10px; align-items:center; margin-top:8px;">
+                <div style="flex:1; position:relative;">
+                    <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#666; font-size:0.9rem;">新價格</span>
+                    <input type="number" id="price-mgr-new-price" step="0.01" style="width:100%; background:#111; border:1px solid #444; color:white; padding:12px 12px 12px 60px; border-radius:8px; font-size:1rem;" placeholder="請輸入新價格" value="${stock.price}" onkeydown="if(event.key === 'Enter') window.manualPriceUpdate('${stock.symbol}', this.value)">
+                </div>
+                <button style="background:var(--accent-blue); color:white; border:none; padding:12px 24px; border-radius:8px; font-size:1rem; font-weight:700; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#3572e6'" onmouseout="this.style.background='var(--accent-blue)'" onclick="window.manualPriceUpdate('${stock.symbol}', document.getElementById('price-mgr-new-price').value)">更新</button>
+            </div>
+        </div>
+    `;
+};
+
+// Global listener to dismiss dropdown on click outside
+document.addEventListener('click', function(e) {
+    const listEl = document.getElementById('price-mgr-dropdown-list');
+    const inputEl = document.getElementById('stock-search-input');
+    if (listEl && inputEl) {
+        if (!inputEl.contains(e.target) && !listEl.contains(e.target)) {
+            listEl.style.display = 'none';
+        }
+    }
+});
 
 window.setOrderMatching = function (shouldMatch) {
     state.shouldMatchOrders = shouldMatch;
@@ -2137,28 +2234,40 @@ function renderPortfolioPage() {
         return topHtml + `<div id="portfolio-list">${holdingsHtml}</div>`;
     } else if (window.portfolioTab === 'long-term') {
         let stocks = state.marketData.filter(s => !s.isIndex);
+        
+        let currentSelectedStock = null;
+        if (window.priceMgrSelectedSymbol) {
+            currentSelectedStock = state.marketData.find(s => s.symbol === window.priceMgrSelectedSymbol);
+        }
+        
+        let searchVal = currentSelectedStock ? `${currentSelectedStock.name} (${currentSelectedStock.symbol})` : '';
+        let cardContent = currentSelectedStock 
+            ? window.renderSelectedStockCardContent(currentSelectedStock)
+            : `<div style="text-align:center; color:var(--text-secondary); padding:24px 10px; font-size:0.95rem;">🔍 請搜尋並點選下方清單選擇股票</div>`;
+
         let managerHtml = `
             <div style="padding: 16px;">
                 <h3 style="color:var(--text-primary); margin-bottom:12px; font-size:1.1rem; display:flex; align-items:center; gap:8px;">
                     <i class="fa-solid fa-screwdriver-wrench" style="color:var(--accent-blue);"></i> 個股價位管理後台
                 </h3>
                 <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:20px; line-height:1.4;">
-                    在此處輸入新價位並按下「更新」按鈕，全站報價將立即同步。此變更僅限當次工作階段。
+                    請在下方搜尋框輸入代號或名稱，選取股票後即可快速修改其最新報價。此變更僅限當次工作階段。
                 </p>
                 
-                <div style="display:flex; flex-direction:column; gap:12px;">
-                    ${stocks.slice(0, 15).map(s => `
-                        <div style="background:#1a191d; border:1px solid #333; border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div style="font-weight:600; color:white;">${s.name} (${s.symbol})</div>
-                                <div style="font-size:0.8rem; color:#888;">目前：${s.price}</div>
-                            </div>
-                            <div style="display:flex; gap:8px;">
-                                <input type="number" id="price-mgr-${s.symbol}" step="0.01" style="width:70px; background:#111; border:1px solid #444; color:white; padding:4px 8px; border-radius:4px; font-size:0.9rem;" placeholder="新價位">
-                                <button style="background:var(--accent-blue); color:white; border:none; padding:4px 12px; border-radius:4px; font-size:0.85rem; font-weight:600; cursor:pointer;" onclick="window.manualPriceUpdate('${s.symbol}', document.getElementById('price-mgr-${s.symbol}').value)">更新</button>
-                            </div>
-                        </div>
-                    `).join('')}
+                <div style="position: relative; margin-bottom: 16px;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
+                    <input type="text" id="stock-search-input" placeholder="搜尋股號或名稱..." 
+                        style="width: 100%; border: 1px solid var(--border-color); background: var(--bg-card); padding: 12px 12px 12px 42px; border-radius: 12px; color: var(--text-primary); font-size: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); outline: none;" 
+                        value="${searchVal}"
+                        onfocus="window.showPriceMgrDropdown()" 
+                        oninput="window.filterPriceMgrDropdown(this.value)">
+                    <div id="price-mgr-dropdown-list" style="display:none; position:absolute; top:100%; left:0; right:0; max-height:250px; overflow-y:auto; background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; z-index:1000; margin-top:4px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                        <!-- Dynamic options loaded via JS -->
+                    </div>
+                </div>
+
+                <div id="selected-stock-card" style="background:#1a191d; border:1px solid #333; border-radius:8px; padding:16px; margin-bottom:24px;">
+                    ${cardContent}
                 </div>
                 
                 <div style="margin-top:24px; padding:12px; background:rgba(255,179,0,0.1); border:1px dashed rgba(255,179,0,0.3); border-radius:8px; color:rgba(255,179,0,0.8); font-size:0.8rem; margin-bottom: 24px;">
