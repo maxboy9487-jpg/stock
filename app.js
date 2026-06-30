@@ -42,7 +42,7 @@ let ACCOUNTS = [...DEFAULT_ACCOUNTS, ...customAccounts];
 window.currentAccountId = localStorage.getItem('stockCurrentAccount');
 
 const state = {
-    currentPage: 'home', previousPage: 'home', currentStock: null, tradeTarget: null,
+    currentPage: 'home', previousPage: 'home', currentStock: null, tradeTarget: null, lastTradeSymbol: '2330',
     balance: 10000000,
     _is1BillionUpgraded: true,
     feeDiscount: 0.6,
@@ -232,6 +232,9 @@ window.manualPriceUpdate = function (symbol, newPrice) {
     if (p > stock.high) stock.high = p;
     if (p < stock.low) stock.low = p;
 
+    // Auto-select this stock on the trade page for convenience
+    state.lastTradeSymbol = symbol;
+
     // If static, we also move the prevClose to keep it stable at the new price
     if (stock.isStatic) {
         stock.prevClose = p;
@@ -359,7 +362,14 @@ window.setOrderMatching = function (shouldMatch) {
         type = 'error';
     }
     showToast(msg, type);
-    if (state.currentPage === 'portfolio') renderPage('portfolio');
+    if (state.currentPage === 'portfolio') renderPage('portfolio', { keepScroll: true });
+};
+
+window.setPriceFluctuations = function (enabled) {
+    state.enablePriceFluctuations = enabled;
+    saveState();
+    if (state.currentPage === 'portfolio') renderPage('portfolio', { keepScroll: true });
+    showToast(enabled ? '✅ 已開啟股票價格自動變動' : '📴 已關閉股票價格自動變動，價格將靜止');
 };
 
 // --- Formatters & UI Helpers ---
@@ -2290,6 +2300,22 @@ function renderPortfolioPage() {
                         </div>
                     </div>
                 </div>
+
+                <div style="background:#1a191d; border:1px solid #333; border-radius:8px; padding:16px; margin-top:16px;">
+                    <h4 style="color:white; margin:0 0 10px 0; font-size:1.05rem; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-chart-line" style="color:var(--accent-blue);"></i> 股票價格變動設定
+                    </h4>
+                    <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:16px; line-height:1.45;">
+                        開啟後系統會模擬即時市場價格波動；關閉後價格將完全靜止，便於手動指定報價以進行截圖或演示。
+                    </p>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:white; font-size:0.95rem; font-weight:600;">股票價格變動</span>
+                        <div style="display:flex; gap:8px;">
+                            <button id="toggle-price-fluct-yes" style="background: ${state.enablePriceFluctuations === true || state.enablePriceFluctuations === undefined ? 'var(--accent-blue)' : '#333'}; color: ${state.enablePriceFluctuations === true || state.enablePriceFluctuations === undefined ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setPriceFluctuations(true)">開啟</button>
+                            <button id="toggle-price-fluct-no" style="background: ${state.enablePriceFluctuations === false ? 'var(--accent-blue)' : '#333'}; color: ${state.enablePriceFluctuations === false ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setPriceFluctuations(false)">關閉</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
         return topHtml + managerHtml;
@@ -2844,7 +2870,7 @@ window.saveBatchEdits = function() {
 function buildTradePage() {
     const container = document.createElement('div');
 
-    let initSym = state.tradeTarget ? state.tradeTarget.symbol : '2330';
+    let initSym = state.tradeTarget ? state.tradeTarget.symbol : (state.lastTradeSymbol || '2330');
     const initStock = state.marketData.find(s => s.symbol === initSym);
     let initShares = initStock ? (initStock.lotSizeVal || 1000) : 1000;
 
@@ -3102,6 +3128,7 @@ function buildTradePage() {
             const filtered = state.marketData.filter(s => !s.isIndex && (s.symbol.includes(tradeState.searchQuery) || s.name.includes(tradeState.searchQuery)));
             if (filtered.length > 0 && !filtered.some(s => s.symbol === tradeState.symbol)) {
                 tradeState.symbol = filtered[0].symbol;
+                state.lastTradeSymbol = tradeState.symbol;
                 const newStock = state.marketData.find(s => s.symbol === tradeState.symbol);
                 if (newStock) { tradeState.limitPrice = newStock.price; tradeState.triggerPrice = newStock.price; tradeState.triggerOrderPrice = newStock.price; }
             }
@@ -3114,6 +3141,7 @@ function buildTradePage() {
 
         container.querySelector('#trade-symbol').onchange = (e) => {
             tradeState.symbol = e.target.value;
+            state.lastTradeSymbol = tradeState.symbol;
             const newStock = state.marketData.find(s => s.symbol === tradeState.symbol);
             if (newStock) { 
                 tradeState.limitPrice = newStock.price; 
@@ -3427,7 +3455,7 @@ function startMarketSimulation() {
         if (Math.random() > 0.95) recordAssetHistory(); // Sample every ~5 seconds
 
         state.marketData.forEach(stock => {
-            const hasMoved = window.MockMarketEngine.tick(stock);
+            const hasMoved = (state.enablePriceFluctuations !== false) ? window.MockMarketEngine.tick(stock) : 0;
             checkPriceAlerts(stock); // Check alerts for this stock
             if (!hasMoved) return;
 
@@ -3543,6 +3571,7 @@ function saveState() {
         watchlist: state.watchlist, isLightMode: state.isLightMode, colorMode: state.colorMode,
         alerts: state.alerts, feeDiscount: state.feeDiscount,
         shouldMatchOrders: state.shouldMatchOrders,
+        enablePriceFluctuations: state.enablePriceFluctuations,
         savedDate: new Date().toDateString()
     };
     localStorage.setItem('stockState_' + window.currentAccountId, JSON.stringify(saveData));
@@ -3568,6 +3597,7 @@ function loadState() {
             if (parsed.alerts) state.alerts = parsed.alerts;
             if (parsed.feeDiscount !== undefined) state.feeDiscount = parsed.feeDiscount;
             if (parsed.shouldMatchOrders !== undefined) state.shouldMatchOrders = parsed.shouldMatchOrders;
+            if (parsed.enablePriceFluctuations !== undefined) state.enablePriceFluctuations = parsed.enablePriceFluctuations;
 
             if (parsed.savedDate && parsed.savedDate !== new Date().toDateString()) {
                 state.todayTrades = new Set();
