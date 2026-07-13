@@ -13,10 +13,10 @@ window.selectionSubPage = null;
 window.selectionSubFilter = 'default';
 window.expandedStocks = new Set();
 
-window.togglePortfolioRow = function(symbol) {
+window.togglePortfolioRow = function (symbol) {
     const detailEl = document.getElementById(`inv-detail-${symbol}`);
     if (!detailEl) return;
-    
+
     const isCurrentlyVisible = detailEl.style.display !== 'none';
     if (isCurrentlyVisible) {
         detailEl.style.display = 'none';
@@ -28,12 +28,12 @@ window.togglePortfolioRow = function(symbol) {
 };
 
 const DEFAULT_ACCOUNTS = [
-    { branch: '台南', id: '3815467' },
-    { branch: '台北', id: '7884943' },
-    { branch: '松江', id: '8927384' },
-    { branch: '台南', id: '4108526' },
-    { branch: '台北', id: '1185773' },
-    { branch: '高雄', id: '5478879' }
+    { branch: '台南', id: '9251843' },
+    { branch: '台北', id: '4163952' },
+    { branch: '松江', id: '5732168' },
+    { branch: '台南', id: '6824719' },
+    { branch: '台北', id: '3592841' },
+    { branch: '高雄', id: '8076524' }
 ];
 
 let customAccounts = JSON.parse(localStorage.getItem('stockCustomAccounts') || '[]');
@@ -61,27 +61,36 @@ const state = {
     triggers: [],
     watchlist: ['2330', '2454', '00326', '00805'],
     marketData: window.parsedMarketData || [],
-    currentBranch: `(台)台南 3815467`,
+    currentBranch: `(台)台南 9251843`,
     shouldMatchOrders: true
 };
 
-window.switchAccount = function(id) {
+window.switchAccount = function (id) {
     if (window.currentAccountId) saveState();
     window.currentAccountId = id;
     localStorage.setItem('stockCurrentAccount', id);
-    
+
     const account = ACCOUNTS.find(a => a.id === id);
     if (account) state.currentBranch = `(台)${account.branch} ${account.id}`;
-    
+
     resetStateInMemory();
     loadState();
-    
+
     // Remove overlay if it exists
     const overlay = document.querySelector('.account-selection-overlay');
     if (overlay) overlay.remove();
-    
+
     renderPage('home');
     showToast(`已切換至帳戶: ${state.currentBranch}`);
+};
+
+window.resetCurrentAccountTrades = function () {
+    if (confirm("確定要刪除此帳號內的所有交易紀錄並還原帳號嗎？")) {
+        resetStateInMemory();
+        saveState();
+        if (state.currentPage === 'portfolio') renderPage('portfolio', { keepScroll: true });
+        showToast("已成功刪除此帳號的所有交易紀錄！");
+    }
 };
 
 function resetStateInMemory() {
@@ -95,13 +104,13 @@ function resetStateInMemory() {
     state.todayTrades = new Set();
 }
 
-window.renderAccountSelectionOverlay = function() {
+window.renderAccountSelectionOverlay = function () {
     const existing = document.querySelector('.account-selection-overlay');
     if (existing) return;
 
     const overlay = document.createElement('div');
     overlay.className = 'account-selection-overlay';
-    
+
     let accountsHtml = ACCOUNTS.map(acc => `
         <div class="account-card ${window.currentAccountId === acc.id ? 'active' : ''}" onclick="window.switchAccount('${acc.id}')">
             <div>
@@ -125,7 +134,7 @@ window.renderAccountSelectionOverlay = function() {
         </div>
     `;
     document.body.appendChild(overlay);
-    
+
     // Allow clicking outside to close
     overlay.onclick = (e) => {
         if (e.target === overlay) {
@@ -134,24 +143,24 @@ window.renderAccountSelectionOverlay = function() {
     };
 };
 
-window.promptAddAccount = function() {
+window.promptAddAccount = function () {
     const branch = prompt('請輸入分公司地區 (例如: 台中)');
     if (!branch) return;
     const id = prompt('請輸入帳號數字 (例如: 1234567)');
     if (!id) return;
-    
+
     const newAcc = { branch, id };
     ACCOUNTS.push(newAcc);
-    
+
     let custom = JSON.parse(localStorage.getItem('stockCustomAccounts') || '[]');
     custom.push(newAcc);
     localStorage.setItem('stockCustomAccounts', JSON.stringify(custom));
-    
+
     // Refresh the overlay
     const overlay = document.querySelector('.account-selection-overlay');
     if (overlay) document.body.removeChild(overlay);
     window.renderAccountSelectionOverlay();
-    
+
     showToast(`✅ 已新增帳戶: ${branch} ${id}`, 'success');
 };
 
@@ -253,7 +262,7 @@ window.manualPriceUpdate = function (symbol, newPrice) {
 };
 
 // --- Price Manager Dropdown Helper Functions ---
-window.showPriceMgrDropdown = function() {
+window.showPriceMgrDropdown = function () {
     const listEl = document.getElementById('price-mgr-dropdown-list');
     if (listEl) {
         listEl.style.display = 'block';
@@ -262,27 +271,27 @@ window.showPriceMgrDropdown = function() {
     }
 };
 
-window.filterPriceMgrDropdown = function(query) {
+window.filterPriceMgrDropdown = function (query) {
     const listEl = document.getElementById('price-mgr-dropdown-list');
     if (!listEl) return;
-    
+
     let searchWord = query.trim();
     const match = query.match(/\(([^)]+)\)/);
     if (match && window.priceMgrSelectedSymbol === match[1]) {
         searchWord = '';
     }
-    
+
     const stocks = state.marketData.filter(s => !s.isIndex);
-    const filtered = stocks.filter(s => 
-        s.symbol.includes(searchWord) || 
+    const filtered = stocks.filter(s =>
+        s.symbol.includes(searchWord) ||
         s.name.toLowerCase().includes(searchWord.toLowerCase())
     );
-    
+
     if (filtered.length === 0) {
         listEl.innerHTML = '<div style="padding:12px; color:var(--text-secondary); text-align:center; font-size:0.95rem;">未找到相符的股票</div>';
         return;
     }
-    
+
     listEl.innerHTML = filtered.slice(0, 30).map(s => {
         const isSelected = window.priceMgrSelectedSymbol === s.symbol;
         return `
@@ -294,27 +303,27 @@ window.filterPriceMgrDropdown = function(query) {
     }).join('');
 };
 
-window.selectPriceMgrStock = function(symbol) {
+window.selectPriceMgrStock = function (symbol) {
     window.priceMgrSelectedSymbol = symbol;
     const stock = state.marketData.find(s => s.symbol === symbol);
     if (!stock) return;
-    
+
     const inputEl = document.getElementById('stock-search-input');
     if (inputEl) {
         inputEl.value = `${stock.name} (${stock.symbol})`;
         inputEl.blur();
     }
-    
+
     const listEl = document.getElementById('price-mgr-dropdown-list');
     if (listEl) listEl.style.display = 'none';
-    
+
     const cardEl = document.getElementById('selected-stock-card');
     if (cardEl) {
         cardEl.innerHTML = window.renderSelectedStockCardContent(stock);
     }
 };
 
-window.renderSelectedStockCardContent = function(stock) {
+window.renderSelectedStockCardContent = function (stock) {
     return `
         <div style="display:flex; flex-direction:column; gap:12px;">
             <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -339,7 +348,7 @@ window.renderSelectedStockCardContent = function(stock) {
 };
 
 // Global listener to dismiss dropdown on click outside
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     const listEl = document.getElementById('price-mgr-dropdown-list');
     const inputEl = document.getElementById('stock-search-input');
     if (listEl && inputEl) {
@@ -897,7 +906,7 @@ window.goToTrade = (symbol, side = 'buy') => {
 function renderPage(page, options = {}) {
     if (page !== 'stockDetail' && page !== 'trade') state.previousPage = state.currentPage;
     state.currentPage = page;
-    
+
     if (!options.keepScroll) {
         window.mainContent.scrollTop = 0;
     }
@@ -2244,14 +2253,14 @@ function renderPortfolioPage() {
         return topHtml + `<div id="portfolio-list">${holdingsHtml}</div>`;
     } else if (window.portfolioTab === 'long-term') {
         let stocks = state.marketData.filter(s => !s.isIndex);
-        
+
         let currentSelectedStock = null;
         if (window.priceMgrSelectedSymbol) {
             currentSelectedStock = state.marketData.find(s => s.symbol === window.priceMgrSelectedSymbol);
         }
-        
+
         let searchVal = currentSelectedStock ? `${currentSelectedStock.name} (${currentSelectedStock.symbol})` : '';
-        let cardContent = currentSelectedStock 
+        let cardContent = currentSelectedStock
             ? window.renderSelectedStockCardContent(currentSelectedStock)
             : `<div style="text-align:center; color:var(--text-secondary); padding:24px 10px; font-size:0.95rem;">🔍 請搜尋並點選下方清單選擇股票</div>`;
 
@@ -2316,6 +2325,19 @@ function renderPortfolioPage() {
                         </div>
                     </div>
                 </div>
+
+                <div style="background:#1a191d; border:1px solid #333; border-radius:8px; padding:16px; margin-top:16px;">
+                    <h4 style="color:#ff5252; margin:0 0 10px 0; font-size:1.05rem; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-trash-can" style="color:#ff5252;"></i> 還原此帳號
+                    </h4>
+                    <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:16px; line-height:1.45;">
+                        此操作將會刪除目前帳號內的所有交易紀錄、委託單、損益以及重設可用餘額為一千萬元。
+                    </p>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:#ff5252; font-size:0.95rem; font-weight:600;">清除所有資料</span>
+                        <button style="background: #ff5252; color: white; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.resetCurrentAccountTrades()">還原帳號</button>
+                    </div>
+                </div>
             </div>
         `;
         return topHtml + managerHtml;
@@ -2376,7 +2398,7 @@ function renderPortfolioPage() {
         else {
             let orderHtmlContent = '';
             state.orders.forEach(o => {
-                let statusLabel = ''; 
+                let statusLabel = '';
                 if (o.status === 'pending') statusLabel = '委託傳送中';
                 else if (o.status === 'pending-disposition') statusLabel = '分盤中';
                 else if (o.status === 'executed') statusLabel = '全部成交';
@@ -2384,7 +2406,7 @@ function renderPortfolioPage() {
                 else statusLabel = '已撤銷';
 
                 let isCancellable = (o.status === 'pending' || o.status === 'pending-disposition');
-                let actionBtnHtml = isCancellable 
+                let actionBtnHtml = isCancellable
                     ? `<button onclick="cancelOrder(${o.id})" style="background:#444; color:white; border:none; padding:6px 14px; font-size:1rem; font-weight:bold; border-radius:4px; cursor:pointer;">刪</button>`
                     : `<button disabled style="background:#2a2a2a; color:#555; border:none; padding:6px 14px; font-size:1rem; font-weight:bold; border-radius:4px;">刪</button>`;
 
@@ -2392,7 +2414,7 @@ function renderPortfolioPage() {
                 let execShares = o.status === 'executed' ? o.shares : 0;
                 let cancelShares = o.status === 'canceled' ? o.shares : 0;
                 let execAvgPrice = o.execPrice ? o.execPrice : 0;
-                
+
                 const stockO = state.marketData.find(s => s.symbol === o.symbol);
                 let isHKLine = stockO && stockO.isHK;
                 let marketName = isHKLine ? '香港' : '台灣';
@@ -2404,7 +2426,7 @@ function renderPortfolioPage() {
                 const _m = String(_now.getMinutes()).padStart(2, '0');
                 const _s = String(Math.floor(Math.random() * 60)).padStart(2, '0');
                 let orderTimeOnly = o.time && o.time.includes('/') ? o.time.split(' ')[1] : (o.time || `${_h}:${_m}:${_s}`);
-                
+
                 orderHtmlContent += `
                     <div style="background:#161511; border-bottom:1px solid #1a1a1a;">
                         <!-- Top Row -->
@@ -2521,9 +2543,9 @@ function renderPortfolioPage() {
                 let isHKLine = stockH && stockH.isHK;
                 let marketName = isHKLine ? '香港' : '台灣';
                 let currencyName = isHKLine ? '港幣' : '台幣';
-                
+
                 let execTime = h.time || "2026/04/23 14:58:" + String(Math.floor(Math.random() * 60)).padStart(2, '0');
-                
+
 
                 tradesContent += `
                     <div style="background:#161511; border-bottom:1px solid #1a1a1a;">
@@ -2769,13 +2791,13 @@ function renderPortfolioPage() {
 function renderMorePage() {
     let ordersWithDocNo = state.orders.map(o => ({ id: o.id, symbol: o.symbol, name: o.name, docNo: o.docNo, type: 'order' }));
     let historyWithDocNo = state.history.map(h => ({ id: h.id, symbol: h.symbol, name: h.name, docNo: h.docNo, type: 'history' }));
-    
+
     let allEntries = [...ordersWithDocNo, ...historyWithDocNo];
 
     let listHtml = allEntries.map(entry => {
         let entryObj = entry.type === 'order' ? state.orders.find(o => o.id == entry.id) : state.history.find(h => h.id == entry.id);
         let currentTime = entryObj ? entryObj.time : '';
-        
+
         return `
             <div class="card" style="margin-bottom:12px; padding:16px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -2815,10 +2837,10 @@ function renderMorePage() {
     `;
 }
 
-window.saveBatchEdits = function() {
+window.saveBatchEdits = function () {
     const docInputs = document.querySelectorAll('.doc-no-input');
     const timeInputs = document.querySelectorAll('.time-input');
-    
+
     // Process DocNos
     docInputs.forEach(input => {
         const id = input.getAttribute('data-id');
@@ -3025,7 +3047,7 @@ function buildTradePage() {
                         <span style="white-space:nowrap;">今日: <strong class="text-up">${formatNumber(stock.high)}</strong> / <strong class="text-down">${formatNumber(stock.low)}</strong></span>
                         <div style="flex:1; height:5px; background:var(--border-color); border-radius:3px; position:relative;">
                             <div style="position:absolute;left:0;top:0;bottom:0;right:0;background:linear-gradient(to right,var(--color-down),#888,var(--color-up));border-radius:3px;"></div>
-                            <div style="position:absolute;top:-3px;bottom:-3px;width:7px;background:white;border-radius:3px;box-shadow:0 0 3px rgba(0,0,0,0.5);left:${Math.min(98,Math.max(2,((currentPrice-stock.low)/(stock.high-stock.low))*100)).toFixed(1)}%;transform:translateX(-50%);"></div>
+                            <div style="position:absolute;top:-3px;bottom:-3px;width:7px;background:white;border-radius:3px;box-shadow:0 0 3px rgba(0,0,0,0.5);left:${Math.min(98, Math.max(2, ((currentPrice - stock.low) / (stock.high - stock.low)) * 100)).toFixed(1)}%;transform:translateX(-50%);"></div>
                         </div>
                     </div>` : ''}
                 </div>
@@ -3143,10 +3165,10 @@ function buildTradePage() {
             tradeState.symbol = e.target.value;
             state.lastTradeSymbol = tradeState.symbol;
             const newStock = state.marketData.find(s => s.symbol === tradeState.symbol);
-            if (newStock) { 
-                tradeState.limitPrice = newStock.price; 
-                tradeState.triggerPrice = newStock.price; 
-                tradeState.triggerOrderPrice = newStock.price; 
+            if (newStock) {
+                tradeState.limitPrice = newStock.price;
+                tradeState.triggerPrice = newStock.price;
+                tradeState.triggerOrderPrice = newStock.price;
                 tradeState.shares = newStock.lotSizeVal || 1000;
             } else {
                 tradeState.shares = 1000;
@@ -3159,10 +3181,10 @@ function buildTradePage() {
 
         const lotsIn = container.querySelector('#trade-lots');
         if (lotsIn) {
-            lotsIn.oninput = (e) => { 
+            lotsIn.oninput = (e) => {
                 const lots = parseInt(e.target.value) || 0;
-                tradeState.shares = lots * currentLotSize; 
-                renderForm(); 
+                tradeState.shares = lots * currentLotSize;
+                renderForm();
             };
         }
 
@@ -3526,12 +3548,12 @@ function updatePortfolioRowUI(stock) {
     const valEl = document.getElementById(`inv-val-${stock.symbol}`);
     const pnlEl = document.getElementById(`inv-pnl-${stock.symbol}`);
     const yieldEl = document.getElementById(`inv-yield-${stock.symbol}`);
-    
+
     // Bottom Summary Fields
     const sPnlEl = document.getElementById(`summary-pnl-${stock.symbol}`);
     const sPctEl = document.getElementById(`summary-pct-${stock.symbol}`);
     const sValEl = document.getElementById(`summary-val-${stock.symbol}`);
-    
+
     if (valEl) valEl.textContent = formatNumber(Math.round(localCurrentVal), 0);
     if (pnlEl) {
         pnlEl.textContent = `${getSign(localGrossPnl)}${formatNumber(Math.round(localGrossPnl), 0)}`;
