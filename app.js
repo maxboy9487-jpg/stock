@@ -28,12 +28,11 @@ window.togglePortfolioRow = function (symbol) {
 };
 
 const DEFAULT_ACCOUNTS = [
-    { branch: '台南', id: '9251843' },
+    { branch: '台南', id: '3815467' },
     { branch: '台北', id: '4163952' },
-    { branch: '松江', id: '5732168' },
-    { branch: '台南', id: '6824719' },
-    { branch: '台北', id: '3592841' },
-    { branch: '高雄', id: '8076524' }
+    { branch: '松江', id: '8250249' },
+    { branch: '忠孝', id: '2948531' },
+    { branch: '土城', id: '6430586' }
 ];
 
 let customAccounts = JSON.parse(localStorage.getItem('stockCustomAccounts') || '[]');
@@ -61,7 +60,7 @@ const state = {
     triggers: [],
     watchlist: ['2330', '2454', '00326', '00805'],
     marketData: window.parsedMarketData || [],
-    currentBranch: `(台)台南 9251843`,
+    currentBranch: `(台)台南 3815467`,
     shouldMatchOrders: true
 };
 
