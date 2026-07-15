@@ -1,4 +1,4 @@
-﻿const rawMarketData = `
+const rawMarketData = `
 5274	信驊	17600	▲760.00	+4.51%	0.54%	7.45%	17240	17695	16440	16840	295	51.920
 6515	穎崴	8720	▲595.00	+7.32%	3.50%	9.05%	8015	8750	8015	8125	497	43.338
 7769	鴻勁	7055	▲215.00	+3.14%	-3.02%	6.58%	7000	7070	6620	6840	728	51.360
@@ -2535,11 +2535,11 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 window.parsedMarketData.push({ 
-    symbol: '02225', name: '今海醫療科技', price: 2.38, change: 0.00, prevClose: 2.38, 
-    open: 2.38, high: 2.38, low: 2.38, volume: 100000, volumeStr: '10.0萬', turnoverAmount: '23.8萬', 
+    symbol: '02225', name: '今海醫療科技', price: 3.70, change: 0.00, prevClose: 3.70, 
+    open: 3.70, high: 3.70, low: 3.70, volume: 100000, volumeStr: '10.0萬', turnoverAmount: '37.0萬', 
     marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
     peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
-    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '2.38', amplitudeStr: '0.00%',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '3.70', amplitudeStr: '0.00%',
     high52: 2.50, low52: 1.50, historyHigh: 3.00, historyLow: 1.00, lotSize: '5000股', lotSizeVal: 5000,
     beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
     isStatic: true, isHK: true 
