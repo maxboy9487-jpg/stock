@@ -2623,6 +2623,17 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 
+window.parsedMarketData.push({ 
+    symbol: '01703', name: '誼和股份', price: 0.9, change: 0.00, prevClose: 0.9, 
+    open: 0.9, high: 0.9, low: 0.9, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '0.9', amplitudeStr: '0.00%',
+    high52: 0.9, low52: 0.9, historyHigh: 0.9, historyLow: 0.9, lotSize: '5000股', lotSizeVal: 5000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
 
 rawMarketData.trim().split('\n').forEach(line => {
     if(!line.trim()) return;
