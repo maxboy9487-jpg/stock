@@ -2634,6 +2634,18 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 
+window.parsedMarketData.push({ 
+    symbol: '06162', name: '天瑞汽車內飾', price: 0.56, change: 0.00, prevClose: 0.56, 
+    open: 0.56, high: 0.56, low: 0.56, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '0.56', amplitudeStr: '0.00%',
+    high52: 0.56, low52: 0.56, historyHigh: 0.56, historyLow: 0.56, lotSize: '8000股', lotSizeVal: 8000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
+
 
 rawMarketData.trim().split('\n').forEach(line => {
     if(!line.trim()) return;

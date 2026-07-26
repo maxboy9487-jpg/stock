@@ -58,7 +58,7 @@ const state = {
     orders: [],
     history: [],
     triggers: [],
-    watchlist: ['2330', '2454', '00326', '00805'],
+    watchlist: ['2330', '2454', '00326', '00805', '06162'],
     marketData: window.parsedMarketData || [],
     currentBranch: `(台)台南 3815467`,
     shouldMatchOrders: true
