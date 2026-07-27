@@ -42,7 +42,7 @@ window.currentAccountId = localStorage.getItem('stockCurrentAccount');
 
 const state = {
     currentPage: 'home', previousPage: 'home', currentStock: null, tradeTarget: null, lastTradeSymbol: '2330',
-    balance: 10000000,
+    balance: Infinity,
     _is1BillionUpgraded: true,
     feeDiscount: 0.6,
     todayTrades: new Set(),
@@ -93,7 +93,7 @@ window.resetCurrentAccountTrades = function () {
 };
 
 function resetStateInMemory() {
-    state.balance = 10000000;
+    state.balance = Infinity;
     state.portfolio = [];
     state.orders = [];
     state.history = [];
@@ -2207,7 +2207,7 @@ function renderPortfolioPage() {
 
         let pieHtml = '';
         if (state.portfolio.length > 0) {
-            let cashPct = (state.balance / totalEquity) * 100;
+            let cashPct = state.balance === Infinity ? 100 : (state.balance / totalEquity) * 100;
             let currentAngle = 0;
             const colors = ['#64b5f6', '#81c784', '#ffb74d', '#ba68c8', '#4db6ac', '#f06292', '#aed581', '#ffd54f'];
             let piePaths = ''; let legends = '';
@@ -2330,7 +2330,7 @@ function renderPortfolioPage() {
                         <i class="fa-solid fa-trash-can" style="color:#ff5252;"></i> 還原此帳號
                     </h4>
                     <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:16px; line-height:1.45;">
-                        此操作將會刪除目前帳號內的所有交易紀錄、委託單、損益以及重設可用餘額為一千萬元。
+                        此操作將會刪除目前帳號內的所有交易紀錄、委託單、損益以及重設可用餘額為無上限。
                     </p>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="color:#ff5252; font-size:0.95rem; font-weight:600;">清除所有資料</span>
@@ -2693,7 +2693,7 @@ function renderPortfolioPage() {
                 <div class="card" style="padding:16px; margin-bottom:12px;">
                     <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
                         <span style="color:var(--text-secondary); font-size:0.9rem;">可用餘額 (交割帳戶)</span>
-                        <span style="font-size:1.4rem; font-weight:700; color:var(--accent-blue); font-family:var(--font-mono);">$${formatNumber(state.balance)}</span>
+                        <span style="font-size:1.4rem; font-weight:700; color:var(--accent-blue); font-family:var(--font-mono);">${state.balance === Infinity ? '無上限' : '$' + formatNumber(state.balance)}</span>
                     </div>
                     <div style="height:8px; background:var(--border-color); border-radius:4px; overflow:hidden; margin-bottom:6px;">
                         <div style="height:100%; width:${freePct.toFixed(1)}%; background:var(--accent-blue); border-radius:4px;"></div>
@@ -3587,7 +3587,7 @@ function updatePortfolioRowUI(stock) {
 function saveState() {
     if (window.isResetting || !window.currentAccountId) return;
     const saveData = {
-        balance: state.balance, portfolio: state.portfolio, orders: state.orders,
+        balance: state.balance === Infinity ? "Infinity" : state.balance, portfolio: state.portfolio, orders: state.orders,
         history: state.history, triggers: state.triggers, assetHistory: state.assetHistory,
         watchlist: state.watchlist, isLightMode: state.isLightMode, colorMode: state.colorMode,
         alerts: state.alerts, feeDiscount: state.feeDiscount,
@@ -3604,7 +3604,7 @@ function loadState() {
     if (saved) {
         try {
             const parsed = JSON.parse(saved);
-            if (parsed.balance !== undefined) state.balance = parsed.balance;
+            if (parsed.balance !== undefined) state.balance = parsed.balance === "Infinity" || parsed.balance === null ? Infinity : parsed.balance;
             if (parsed.portfolio) state.portfolio = parsed.portfolio;
             if (parsed.orders) state.orders = parsed.orders;
             if (parsed.history) state.history = parsed.history;
@@ -3628,8 +3628,8 @@ function loadState() {
 }
 
 window.resetAppData = () => {
-    if (confirm('確定要將帳戶資金重置為 10,000,000 元，並清空所有庫存與歷史紀錄嗎？交易紀錄將無法復原。')) {
-        state.balance = 10000000;
+    if (confirm('確定要將帳戶資金重置為無上限，並清空所有庫存與歷史紀錄嗎？交易紀錄將無法復原。')) {
+        state.balance = Infinity;
         state.portfolio = [];
         state.history = [];
         state.orders = [];
@@ -3638,7 +3638,7 @@ window.resetAppData = () => {
         state._demoDone = true; // Mark as done so demo data doesn't auto-repopulate
         saveState();
         renderPage('portfolio');
-        showToast('帳戶已成功重置為 10,000,000 元');
+        showToast('帳戶已成功重置為無上限');
     }
 };
 
