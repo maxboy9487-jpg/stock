@@ -363,8 +363,11 @@ window.setOrderMatching = function (shouldMatch) {
     let msg = '已開啟自動成交';
     let type = 'success';
     if (shouldMatch === false) {
-        msg = '已關閉自動成交（委託將維持「委託傳送中」狀態）';
+        msg = '已設定委託狀態為「委託傳送中（不成交）」';
         type = 'warning';
+    } else if (shouldMatch === 'submitted') {
+        msg = '已設定委託狀態為「委託成功（不成交）」';
+        type = 'info';
     } else if (shouldMatch === 'failed') {
         msg = '已設定委託狀態為「委託失敗」';
         type = 'error';
@@ -656,7 +659,9 @@ function submitOrder(tradeParams, isTriggeredBySmart = false) {
     // Market orders or Limit matching only if NOT in disposition delay AND Market is OPEN
     if (state.shouldMatchOrders === 'failed') {
         order.status = 'failed';
-    } else if (state.shouldMatchOrders !== false && order.status !== 'pending-disposition' && state.marketStatus === 'open') {
+    } else if (state.shouldMatchOrders === 'submitted') {
+        order.status = 'submitted';
+    } else if (state.shouldMatchOrders === true && order.status !== 'pending-disposition' && state.marketStatus === 'open') {
         if (priceType === 'market') { executed = true; execPrice = stock.price; }
         else {
             if (side === 'buy' && limitPrice >= stock.price) { executed = true; execPrice = stock.price; }
@@ -739,7 +744,7 @@ function submitOcoTrigger(params) {
 
 window.cancelOrder = (id) => {
     let o = state.orders.find(o => o.id === id);
-    if (o && (o.status === 'pending' || o.status === 'pending-disposition')) { // A2: also cancel disposition orders
+    if (o && (o.status === 'pending' || o.status === 'pending-disposition' || o.status === 'submitted')) { // A2: also cancel disposition orders
         o.status = 'canceled'; showToast('委託已撤銷', 'error'); if (state.currentPage === 'portfolio') renderPage('portfolio');
     }
 };
@@ -2297,13 +2302,14 @@ function renderPortfolioPage() {
                         <i class="fa-solid fa-circle-check" style="color:#4db6ac;"></i> 模擬交易成交設定
                     </h4>
                     <p style="color:var(--text-secondary); font-size:0.88rem; margin-bottom:16px; line-height:1.45;">
-                        開啟後委託將正常撮合成交；關閉後委託將保持「委託傳送中」狀態，便於擷取委託成功的畫面。
+                        設定模擬下單後的撮合狀態（要成交、不成交委託成功、不成交委託傳送中、或委託失敗）。
                     </p>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="color:white; font-size:0.95rem; font-weight:600;">下單後要不要成交</span>
                         <div style="display:flex; gap:8px;">
                             <button id="toggle-match-yes" style="background: ${state.shouldMatchOrders === true || state.shouldMatchOrders === undefined ? '#4db6ac' : '#333'}; color: ${state.shouldMatchOrders === true || state.shouldMatchOrders === undefined ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setOrderMatching(true)">要成交</button>
-                            <button id="toggle-match-no" style="background: ${state.shouldMatchOrders === false ? '#4db6ac' : '#333'}; color: ${state.shouldMatchOrders === false ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setOrderMatching(false)">不成交 (委託中)</button>
+                            <button id="toggle-match-submitted" style="background: ${state.shouldMatchOrders === 'submitted' ? '#4db6ac' : '#333'}; color: ${state.shouldMatchOrders === 'submitted' ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setOrderMatching('submitted')">不成交(委託成功)</button>
+                            <button id="toggle-match-no" style="background: ${state.shouldMatchOrders === false ? '#4db6ac' : '#333'}; color: ${state.shouldMatchOrders === false ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setOrderMatching(false)">不成交(委託傳送中)</button>
                             <button id="toggle-match-failed" style="background: ${state.shouldMatchOrders === 'failed' ? '#4db6ac' : '#333'}; color: ${state.shouldMatchOrders === 'failed' ? 'white' : '#888'}; border:none; padding:8px 18px; border-radius:6px; font-size:0.95rem; font-weight:700; cursor:pointer;" onclick="window.setOrderMatching('failed')">委託失敗</button>
                         </div>
                     </div>
@@ -2399,6 +2405,7 @@ function renderPortfolioPage() {
             state.orders.forEach(o => {
                 let statusLabel = '';
                 if (o.status === 'pending') statusLabel = '委託傳送中';
+                else if (o.status === 'submitted') statusLabel = '委託成功';
                 else if (o.status === 'pending-disposition') statusLabel = '分盤中';
                 else if (o.status === 'executed') statusLabel = '全部成交';
                 else if (o.status === 'failed') statusLabel = '委託失敗';
@@ -3340,7 +3347,7 @@ function checkTriggers() {
 }
 
 function checkPendingOrders() {
-    if (state.shouldMatchOrders === false || state.shouldMatchOrders === 'failed') {
+    if (state.shouldMatchOrders !== true) {
         return false;
     }
     let triggered = false;
