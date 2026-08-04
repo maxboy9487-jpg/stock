@@ -2162,10 +2162,13 @@ function renderPortfolioPage() {
                 holdingsHtml += `
                     <div id="inv-row-${pos.symbol}" style="background:#111; border-bottom: 1px solid #1d1d1d;">
                         <div style="display:flex; align-items:center; padding: 18px 16px 16px; cursor:pointer;" onclick="window.togglePortfolioRow('${pos.symbol}')">
-                            <div style="flex:1.4; font-family:var(--font-mono); color:#E1E1DA; font-size:1.25rem; text-decoration:underline; font-weight:600; letter-spacing:0.5px; text-align:left;">${pos.symbol}</div>
-                            <div id="inv-price-${pos.symbol}" style="flex:1; font-family:var(--font-mono); font-size:1.3rem; font-weight:500; color:#ffffff; text-align:center;">${formatNumber(currentPrice, 3)}</div>
-                            <div style="flex:1.2; font-family:var(--font-mono); color:#E1E1DA; font-size:1.1rem; text-decoration:underline; font-weight:500; text-align:center;">${formatNumber(pos.shares, 0)}</div>
-                            <div id="inv-pnlpct-${pos.symbol}" style="flex:1; font-family:var(--font-mono); font-weight:700; font-size:1.2rem; text-align:right; font-variant-numeric: tabular-nums;" class="${pnlPctColor}">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</div>
+                            <div style="flex:1.4; font-family:var(--font-mono); color:#E1E1DA; font-size:1.15rem; text-decoration:underline; font-weight:600; letter-spacing:0.5px; text-align:left;">${pos.symbol}</div>
+                            <div style="width:12px;"></div>
+                            <div id="inv-price-${pos.symbol}" style="flex:1.1; font-family:var(--font-mono); font-size:1.15rem; font-weight:500; color:#ffffff; text-align:center;">${formatNumber(currentPrice, 3)}</div>
+                            <div style="width:12px;"></div>
+                            <div style="flex:1.2; font-family:var(--font-mono); color:#E1E1DA; font-size:1.1rem; text-decoration:underline; font-weight:500; text-align:center; padding-left:4px;">${formatNumber(pos.shares, 0)}</div>
+                            <div style="width:12px;"></div>
+                            <div id="inv-pnlpct-${pos.symbol}" style="flex:1; font-family:var(--font-mono); font-weight:700; font-size:1.15rem; text-align:right; font-variant-numeric: tabular-nums;" class="${pnlPctColor}">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</div>
                         </div>
 
                         <div id="inv-detail-${pos.symbol}" class="portfolio-expanded-section" style="display: ${isExpanded ? 'block' : 'none'};">
@@ -2202,22 +2205,22 @@ function renderPortfolioPage() {
                                 <span style="color:#ffffff; font-size:1.2rem; font-weight:700; margin-left:20px;">${currencyName}</span>
                             </div>
                             <!-- Improved Summary Grid: 2 columns to prevent overlap -->
-                            <div style="display:grid; grid-template-columns: 1.1fr 0.9fr; row-gap:14px; column-gap:16px; margin-bottom:14px;">
-                                <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
-                                    <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">總投資損益*</span>
-                                    <span id="summary-pnl-${pos.symbol}" class="${pnlColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localGrossPnl)}${formatNumber(Math.round(localGrossPnl), 0)}</span>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; row-gap:12px; column-gap:8px; margin-bottom:14px;">
+                                <div style="display:flex; justify-content:space-between; align-items:baseline; gap:2px;">
+                                    <span style="color:#ffffff; font-size:1rem; font-weight:700; white-space:nowrap;">總投資損益*</span>
+                                    <span id="summary-pnl-${pos.symbol}" class="${pnlColor}" style="font-size:1rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localGrossPnl)}${formatNumber(Math.round(localGrossPnl), 0)}</span>
                                 </div>
-                                <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
-                                    <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">總報酬率*</span>
-                                    <span id="summary-pct-${pos.symbol}" class="${pnlPctColor}" style="font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right; font-variant-numeric: tabular-nums;">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</span>
+                                <div style="display:flex; justify-content:space-between; align-items:baseline; gap:2px;">
+                                    <span style="color:#ffffff; font-size:1rem; font-weight:700; white-space:nowrap;">總報酬率*</span>
+                                    <span id="summary-pct-${pos.symbol}" class="${pnlPctColor}" style="font-size:1rem; font-weight:700; font-family:var(--font-mono); text-align:right; font-variant-numeric: tabular-nums;">${getSign(localPnlPct)}${formatNumber(localPnlPct, 2)}%</span>
                                 </div>
-                                <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
-                                    <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">總成本</span>
-                                    <span id="summary-cost-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(Math.round(localCost), 0)}</span>
+                                <div style="display:flex; justify-content:space-between; align-items:baseline; gap:2px;">
+                                    <span style="color:#ffffff; font-size:1rem; font-weight:700; white-space:nowrap;">總成本</span>
+                                    <span id="summary-cost-${pos.symbol}" style="color:#ffffff; font-size:1rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(Math.round(localCost), 0)}</span>
                                 </div>
-                                <div style="display:flex; justify-content:space-between; align-items:baseline; gap:4px;">
-                                    <span style="color:#ffffff; font-size:1.05rem; font-weight:700; white-space:nowrap;">庫存現值*</span>
-                                    <span id="summary-val-${pos.symbol}" style="color:#ffffff; font-size:1.05rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(Math.round(localCurrentVal), 0)}</span>
+                                <div style="display:flex; justify-content:space-between; align-items:baseline; gap:2px;">
+                                    <span style="color:#ffffff; font-size:1rem; font-weight:700; white-space:nowrap;">庫存現值*</span>
+                                    <span id="summary-val-${pos.symbol}" style="color:#ffffff; font-size:1rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${formatNumber(Math.round(localCurrentVal), 0)}</span>
                                 </div>
                             </div>
                             <div style="color:#ffffff; font-size:1rem; font-weight:700; line-height:1.6; padding-top:12px; border-top:1px solid #222;">標註*欄位為延遲報價計算，日/深/滬為昨收價計算</div>
