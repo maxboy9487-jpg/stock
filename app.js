@@ -2184,15 +2184,15 @@ function renderPortfolioPage() {
 
                                 <span class="detail-label">目前庫存</span>
                                 <span class="detail-value">${formatNumber(pos.shares, 0)}</span>
-                                <span class="detail-label" style="text-decoration: underline;">可用庫存</span>
-                                <span class="detail-value">${formatNumber(pos.shares, 0)}</span>
+                                <span class="detail-label">可用庫存</span>
+                                <span class="detail-value" style="text-decoration: underline;">${formatNumber(pos.shares, 0)}</span>
 
                                 <span class="detail-label">庫存成本</span>
                                 <span class="detail-value" id="inv-cost-${pos.symbol}">${formatNumber(localCost, 2)}</span>
                                 <span class="detail-label">現值*</span>
                                 <span class="detail-value" id="inv-val-${pos.symbol}">${formatNumber(localCurrentVal, 2)}</span>
 
-                                <span class="detail-label">投資損益*</span>
+                                <span class="detail-label">投資損益 *</span>
                                 <span class="detail-value ${pnlColor}" id="inv-pnl-${pos.symbol}">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}</span>
                                 <span class="detail-label">含息報酬率 <i class="fa-solid fa-circle-info" style="font-size:0.8rem; opacity:0.6; cursor:pointer;" onclick="alert('含息報酬率(%) = [ (持有當日現值 ／(平均單位成本 ＊ 庫存部位)) – 1]')"></i></span>
                                 <span class="detail-value ${getColorClass(dividendYieldPct)}" id="inv-yield-${pos.symbol}">${getSign(dividendYieldPct)}${formatNumber(dividendYieldPct, 2)}%</span>
@@ -2207,7 +2207,7 @@ function renderPortfolioPage() {
                             <!-- Improved Summary Grid: 2 columns to prevent overlap -->
                             <div style="display:grid; grid-template-columns: 1fr 1fr; row-gap:12px; column-gap:8px; margin-bottom:14px;">
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:2px;">
-                                    <span style="color:#ffffff; font-size:1rem; font-weight:700; white-space:nowrap;">總投資損益*</span>
+                                    <span style="color:#ffffff; font-size:1rem; font-weight:700; white-space:nowrap;">總投資損益 *</span>
                                     <span id="summary-pnl-${pos.symbol}" class="${pnlColor}" style="font-size:1rem; font-weight:700; font-family:var(--font-mono); text-align:right;">${getSign(localGrossPnl)}${formatNumber(Math.round(localGrossPnl), 0)}</span>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; align-items:baseline; gap:2px;">
