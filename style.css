@@ -314,7 +314,7 @@ body {
     color: #dddddd; 
     font-weight: 600; 
     border-radius: 4px; 
-    font-size: 0.95rem;
+    font-size: 1.15rem;
     cursor: pointer;
     border: 1px solid rgba(0,0,0,0.5);
 }
@@ -714,4 +714,13 @@ body::after {
 .account-card .arrow {
     color: var(--accent-blue);
     font-size: 1.2rem;
+}
+
+@keyframes customFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+@keyframes customFadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
 }

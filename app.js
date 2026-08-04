@@ -1999,6 +1999,53 @@ function exportHistoryCSV() {
 }
 window.exportHistoryCSV = exportHistoryCSV;
 
+window.handleOrderLongPress = function(e, id) {
+    if (e && e.cancelable) e.preventDefault();
+    if (confirm('確定要刪除此筆委託單嗎？')) {
+        state.orders = state.orders.filter(o => o.id != id);
+        renderPage('portfolio', {keepScroll: true});
+        showToast('委託單已刪除');
+    }
+};
+
+window.handleTradeLongPress = function(e, id) {
+    if (e && e.cancelable) e.preventDefault();
+    if (confirm('確定要刪除此筆成交單嗎？')) {
+        state.history = state.history.filter(h => (h.id != id && h.docNo != id));
+        renderPage('portfolio', {keepScroll: true});
+        showToast('成交單已刪除');
+    }
+};
+
+let pressTimer = null;
+window.startPress = function(e, type, id) {
+    pressTimer = setTimeout(() => {
+        if(type === 'order') window.handleOrderLongPress(e, id);
+        else window.handleTradeLongPress(e, id);
+    }, 500);
+};
+window.cancelPress = function() {
+    if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+    }
+};
+
+window.isPortfolioLoading = false;
+window.switchTabWithSpinner = function(tab) {
+    window.portfolioTab = tab;
+    if (tab === 'orders' || tab === 'trades') {
+        window.isPortfolioLoading = true;
+        renderPage('portfolio');
+        setTimeout(() => {
+            window.isPortfolioLoading = false;
+            renderPage('portfolio', {keepScroll: true});
+        }, 600);
+    } else {
+        renderPage('portfolio');
+    }
+};
+
 function renderPortfolioPage() {
     let topHtml = `
             <div style="background-color: #2b2a2f; color: white; margin: 0; padding: 0 4px;">
@@ -2026,7 +2073,7 @@ function renderPortfolioPage() {
         const labels = { orders: '委託', trades: '成交', inventory: '庫存', history: '已實現', 'buying-power': '購買力', 'long-term': '長...' };
         const isActive = window.portfolioTab === tab;
         return `
-                    <div style="flex:1; display:flex; justify-content:center; white-space:nowrap;" onclick="window.portfolioTab='${tab}'; renderPage('portfolio')">
+                    <div style="flex:1; display:flex; justify-content:center; white-space:nowrap;" onclick="window.switchTabWithSpinner('${tab}')">
                         <div class="portfolio-tab ${isActive ? 'active' : ''}">${labels[tab]}</div>
                     </div>`;
     }).join('')}
@@ -2042,6 +2089,13 @@ function renderPortfolioPage() {
             ${window.portfolioTab === 'orders' ? '<div style="background:#555; color:white; padding:8px 16px; font-size:1rem; font-weight:bold; cursor:pointer;" onclick="state.triggers=[];state.orders=[];renderPage(\'portfolio\');showToast(\'已全刪未成交委託\');">全刪</div>' : ''}
         </div>
     `;
+
+    if (window.isPortfolioLoading) {
+        return topHtml + `
+        <div style="text-align:center; padding: 4rem 1rem; color: #aaa; background:#161511; margin: 0; min-height: 50vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.2rem; color: #888;"></i>
+        </div>`;
+    }
 
     if (window.portfolioTab === 'inventory') {
         let totalStockValue = 0; let totalUnrealized = 0; let holdingsHtml = '';
@@ -2398,7 +2452,15 @@ function renderPortfolioPage() {
         `;
 
         if (state.orders.length === 0) {
-            ordersHtml += '<div style="text-align:center; padding: 2.5rem; color: var(--text-secondary); background:#161511; margin: 0 -16px; font-weight:bold;">無委託紀錄</div>';
+            ordersHtml += `
+            <div style="text-align:center; padding: 4rem 1rem; color: #aaa; background:transparent; margin: 0 -16px; position:relative; min-height: 50vh;">
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); animation: customFadeOut 0.1s 0.6s forwards;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.2rem; color: #888;"></i>
+                </div>
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); opacity:0; animation: customFadeIn 0.1s 0.6s forwards; font-weight:bold; font-size:1.8rem; letter-spacing:2px; color: #ffffff;">
+                    查無資料
+                </div>
+            </div>`;
         }
         else {
             let orderHtmlContent = '';
@@ -2434,7 +2496,11 @@ function renderPortfolioPage() {
                 let orderTimeOnly = o.time && o.time.includes('/') ? o.time.split(' ')[1] : (o.time || `${_h}:${_m}:${_s}`);
 
                 orderHtmlContent += `
-                    <div style="background:#161511; border-bottom:1px solid #1a1a1a;">
+                    <div style="background:#161511; border-bottom:1px solid #1a1a1a;"
+                         oncontextmenu="window.handleOrderLongPress(event, ${o.id}); return false;"
+                         ontouchstart="window.startPress(event, 'order', ${o.id})"
+                         ontouchend="window.cancelPress()"
+                         ontouchmove="window.cancelPress()">
                         <!-- Top Row -->
                         <div style="display:flex; align-items:center; padding: 14px 16px; border-bottom:1px solid #222; font-weight:bold;">
                             <div style="flex:0.8; text-align:center;">
@@ -2537,7 +2603,15 @@ function renderPortfolioPage() {
             </div>
         `;
         if (state.history.length === 0) {
-            tradesHtml += '<div style="text-align:center; padding: 2.5rem; color: var(--text-secondary); background:#161511; margin: 0 -16px; font-weight:bold;">尚無成交紀錄</div>';
+            tradesHtml += `
+            <div style="text-align:center; padding: 4rem 1rem; color: #aaa; background:transparent; margin: 0 -16px; position:relative; min-height: 50vh;">
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); animation: customFadeOut 0.1s 0.6s forwards;">
+                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.2rem; color: #888;"></i>
+                </div>
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); opacity:0; animation: customFadeIn 0.1s 0.6s forwards; font-weight:bold; font-size:1.8rem; letter-spacing:2px; color: #ffffff;">
+                    查無資料
+                </div>
+            </div>`;
         } else {
             let tradesContent = '';
             state.history.slice().reverse().forEach((h, index) => {
@@ -2554,7 +2628,11 @@ function renderPortfolioPage() {
 
 
                 tradesContent += `
-                    <div style="background:#161511; border-bottom:1px solid #1a1a1a;">
+                    <div style="background:#161511; border-bottom:1px solid #1a1a1a;"
+                         oncontextmenu="window.handleTradeLongPress(event, '${h.id || h.docNo}'); return false;"
+                         ontouchstart="window.startPress(event, 'trade', '${h.id || h.docNo}')"
+                         ontouchend="window.cancelPress()"
+                         ontouchmove="window.cancelPress()">
                         <div style="display:flex; align-items:center; padding: 14px 16px; font-weight:bold;">
                             <div style="flex:1; text-align:left; color:${sideColor}; font-size:1.15rem;">${sideName}</div>
                             <div style="flex:1.2; text-align:left; color:white; font-size:1.15rem; font-family:var(--font-mono); padding-left:12px;">${h.symbol}</div>
