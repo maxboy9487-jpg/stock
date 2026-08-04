@@ -2148,6 +2148,8 @@ function renderPortfolioPage() {
                 let localGrossPnl = localCurrentVal - localCost;
                 if (pos.marginType === 'short') localGrossPnl = localCost - localCurrentVal;
                 let localPnlPct = localCost > 0 ? (localGrossPnl / localCost) * 100 : 0;
+                let localDividend = pos.dividend || 0;
+                let dividendYieldPct = localCost > 0 ? ((localGrossPnl + localDividend) / localCost) * 100 : 0;
 
                 totalCostVal += actualCostTwd;
                 totalStockValue += (actualCostTwd + finalPnlTwd);
@@ -2173,24 +2175,24 @@ function renderPortfolioPage() {
                             </div>
                             <div class="inventory-detail-grid">
                                 <span class="detail-label">市場</span>
-                                <span class="detail-value" style="text-align:right;">${marketName}</span>
+                                <span class="detail-value" style="text-align:right;">${marketName}/${currencyName}</span>
                                 <span class="detail-label">均價</span>
                                 <span class="detail-value">${formatNumber(localAvgPrice, 3)}</span>
 
                                 <span class="detail-label">目前庫存</span>
                                 <span class="detail-value">${formatNumber(pos.shares, 0)}</span>
-                                <span class="detail-label">可用庫存</span>
+                                <span class="detail-label" style="text-decoration: underline;">可用庫存</span>
                                 <span class="detail-value">${formatNumber(pos.shares, 0)}</span>
 
                                 <span class="detail-label">庫存成本</span>
-                                <span class="detail-value" id="inv-cost-${pos.symbol}">${formatNumber(Math.round(localCost), 0)}</span>
+                                <span class="detail-value" id="inv-cost-${pos.symbol}">${formatNumber(localCost, 2)}</span>
                                 <span class="detail-label">現值*</span>
-                                <span class="detail-value" id="inv-val-${pos.symbol}">${formatNumber(Math.round(localCurrentVal), 0)}</span>
+                                <span class="detail-value" id="inv-val-${pos.symbol}">${formatNumber(localCurrentVal, 2)}</span>
 
                                 <span class="detail-label">投資損益*</span>
-                                <span class="detail-value ${pnlColor}" id="inv-pnl-${pos.symbol}">${getSign(localGrossPnl)}${formatNumber(Math.round(localGrossPnl), 0)}</span>
-                                <span class="detail-label">含息報酬率 <i class="fa-solid fa-circle-info" style="font-size:0.8rem; opacity:0.6;"></i></span>
-                                <span class="detail-value text-up" id="inv-yield-${pos.symbol}">${pos.symbol === '02940' ? '3.59%' : formatNumber(localPnlPct, 2) + '%'}</span>
+                                <span class="detail-value ${pnlColor}" id="inv-pnl-${pos.symbol}">${getSign(localGrossPnl)}${formatNumber(localGrossPnl, 2)}</span>
+                                <span class="detail-label">含息報酬率 <i class="fa-solid fa-circle-info" style="font-size:0.8rem; opacity:0.6; cursor:pointer;" onclick="alert('含息報酬率(%) = [ (持有當日現值 ／(平均單位成本 ＊ 庫存部位)) – 1]')"></i></span>
+                                <span class="detail-value ${getColorClass(dividendYieldPct)}" id="inv-yield-${pos.symbol}">${getSign(dividendYieldPct)}${formatNumber(dividendYieldPct, 2)}%</span>
                             </div>
                         </div>
 
