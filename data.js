@@ -2645,7 +2645,16 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 
-
+window.parsedMarketData.push({ 
+    symbol: '00328', name: 'ALCO HOLDINGS', price: 0.41, change: 0.00, prevClose: 0.41, 
+    open: 0.41, high: 0.41, low: 0.41, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '0.41', amplitudeStr: '0.00%',
+    high52: 0.41, low52: 0.41, historyHigh: 0.41, historyLow: 0.41, lotSize: '2000股', lotSizeVal: 2000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
 
 rawMarketData.trim().split('\n').forEach(line => {
     if(!line.trim()) return;
