@@ -2063,9 +2063,9 @@ function renderPortfolioPage() {
           </div>
           <!-- Second row: Account Type Tabs -->
           <div class="sub-tab-group">
-            <div class="sub-tab-item">證券</div>
-            <div class="sub-tab-item">期權</div>
-            <div class="sub-tab-item active">複委託</div>
+            <div class="sub-tab-item" onclick="this.parentElement.querySelectorAll('.sub-tab-item').forEach(el=>el.classList.remove('active')); this.classList.add('active');">證券</div>
+            <div class="sub-tab-item" onclick="this.parentElement.querySelectorAll('.sub-tab-item').forEach(el=>el.classList.remove('active')); this.classList.add('active');">期權</div>
+            <div class="sub-tab-item active" onclick="this.parentElement.querySelectorAll('.sub-tab-item').forEach(el=>el.classList.remove('active')); this.classList.add('active');">複委託</div>
           </div>
           <!-- Third row: Function Tabs -->
           <div style="display:flex; overflow-x:auto; background:#222126; justify-content:space-around; font-size:1.1rem; padding: 0 4px; border-bottom: 2px solid #555;">

@@ -2535,6 +2535,17 @@ window.parsedMarketData.push({
     isStatic: true, isHK: true 
 });
 window.parsedMarketData.push({ 
+    symbol: '03110', name: 'GlobalX 恒生高股息', price: 30.70, change: 0.00, prevClose: 30.70, 
+    open: 30.70, high: 30.70, low: 30.70, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '30.70', amplitudeStr: '0.00%',
+    high52: 30.70, low52: 30.70, historyHigh: 30.70, historyLow: 30.70, lotSize: '50股', lotSizeVal: 50,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
+window.parsedMarketData.push({ 
     symbol: '02225', name: '今海醫療科技', price: 3.70, change: 0.00, prevClose: 3.70, 
     open: 3.70, high: 3.70, low: 3.70, volume: 100000, volumeStr: '10.0萬', turnoverAmount: '37.0萬', 
     marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
