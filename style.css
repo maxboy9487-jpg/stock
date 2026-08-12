@@ -308,8 +308,10 @@ body {
 }
 .sub-tab-item {
     flex: 1; 
-    text-align: center; 
-    padding: 9px 0; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px; 
     background: #171717; 
     color: #dddddd; 
     font-weight: 600; 
