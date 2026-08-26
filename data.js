@@ -2569,12 +2569,12 @@ window.parsedMarketData.push({
 
 
 window.parsedMarketData.push({ 
-    symbol: '02940', name: '經緯天地', price: 1.890, change: -3.272, prevClose: 5.162, 
-    open: 3.50, high: 4.10, low: 1.80, volume: 145000, volumeStr: '14.5萬', turnoverAmount: '27.4萬', 
+    symbol: '02477', name: '經緯天地', price: 0.226, change: 0.00, prevClose: 0.226, 
+    open: 0.226, high: 0.226, low: 0.226, volume: 0, volumeStr: '0', turnoverAmount: '0', 
     marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
     peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
-    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '5.03', amplitudeStr: '0.00%',
-    high52: 5.03, low52: 5.03, historyHigh: 5.03, historyLow: 5.03, lotSize: '3200股', lotSizeVal: 3200,
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '0.226', amplitudeStr: '0.00%',
+    high52: 0.226, low52: 0.226, historyHigh: 0.226, historyLow: 0.226, lotSize: '800股', lotSizeVal: 800,
     beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
     isStatic: true, isHK: true 
 });
@@ -2663,6 +2663,17 @@ window.parsedMarketData.push({
     peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
     turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '0.41', amplitudeStr: '0.00%',
     high52: 0.41, low52: 0.41, historyHigh: 0.41, historyLow: 0.41, lotSize: '2000股', lotSizeVal: 2000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
+window.parsedMarketData.push({ 
+    symbol: '00100', name: 'MINIMAX-W', price: 379.80, change: 0.00, prevClose: 379.80, 
+    open: 379.80, high: 379.80, low: 379.80, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '379.80', amplitudeStr: '0.00%',
+    high52: 379.80, low52: 379.80, historyHigh: 379.80, historyLow: 379.80, lotSize: '20股', lotSizeVal: 20,
     beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
     isStatic: true, isHK: true 
 });
