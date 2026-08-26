@@ -2518,7 +2518,7 @@ function renderPortfolioPage() {
                             </div>
                             <div style="width: 20px;"></div>
                             <div style="flex:1; text-align:right; font-size:1.15rem; color:white; font-family:var(--font-mono);">
-                                ${formatNumber(o.price)}
+                                ${formatNumber(o.price, (isHKLine && o.price < 1) ? 3 : 2)}
                             </div>
                             <div style="width: 20px;"></div>
                             <div style="flex:1.5; text-align:right; font-size:1.1rem; color:white;">
@@ -2563,7 +2563,7 @@ function renderPortfolioPage() {
                                 </div>
                                 <div style="display:flex; justify-content:space-between;">
                                     <div>成交均價</div>
-                                    <div style="font-family:var(--font-mono);">${formatNumber(execAvgPrice)}</div>
+                                    <div style="font-family:var(--font-mono);">${formatNumber(execAvgPrice, (isHKLine && execAvgPrice < 1 && execAvgPrice > 0) ? 3 : 2)}</div>
                                 </div>
                             </div>
 
@@ -2641,7 +2641,7 @@ function renderPortfolioPage() {
                         <div style="display:flex; align-items:center; padding: 14px 16px; font-weight:bold;">
                             <div style="flex:1; text-align:left; color:${sideColor}; font-size:1.15rem;">${sideName}</div>
                             <div style="flex:1.2; text-align:left; color:white; font-size:1.15rem; font-family:var(--font-mono); padding-left:12px;">${h.symbol}</div>
-                            <div style="flex:1.5; text-align:right; color:white; font-size:1.15rem; font-family:var(--font-mono); padding-right:12px;">${formatNumber(tradePrice)}</div>
+                            <div style="flex:1.5; text-align:right; color:white; font-size:1.15rem; font-family:var(--font-mono); padding-right:12px;">${formatNumber(tradePrice, (isHKLine && tradePrice < 1) ? 3 : 2)}</div>
                             <div style="flex:1.5; text-align:right; color:white; font-size:1.15rem; font-family:var(--font-mono);">${formatNumber(h.shares, 0)}</div>
                         </div>
                         <div style="height:1px; background:#444; margin:0 16px;"></div>
