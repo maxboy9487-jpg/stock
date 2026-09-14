@@ -474,7 +474,6 @@ function processOrderExecution(order, execPrice) {
     const stock = state.marketData.find(s => s.symbol === order.symbol);
     let isHK = stock && stock.isHK;
     let isUS = stock && stock.isUS;
-    let isUS = stock && stock.isUS;
     let rate = (typeof stock !== "undefined" && stock && stock.isUS) ? CONFIG.USD_RATE : (isHK ? CONFIG.HKD_RATE : 1);
     let twdValue = execPrice * shares * rate;
     let marginType = order.marginType || 'cash';
@@ -3014,7 +3013,6 @@ function buildTradePage() {
         if (tradeState.priceType === 'smart') { estPrice = tradeState.triggerExecuteType === 'limit' ? tradeState.triggerOrderPrice : currentPrice; }
 
         let isHK = stock && stock.isHK;
-    let isUS = stock && stock.isUS;
     let isUS = stock && stock.isUS;
         let rate = (typeof stock !== "undefined" && stock && stock.isUS) ? CONFIG.USD_RATE : (isHK ? CONFIG.HKD_RATE : 1);
         let estTwdPrice = estPrice * rate;
