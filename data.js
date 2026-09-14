@@ -2522,8 +2522,18 @@ const rawMarketData = `
 
 window.parsedMarketData = [];
 
-// Weighted Index and key HK stock
+// Weighted Index and key HK/US stock
 window.parsedMarketData.push({ symbol: 'IX0001', name: '加權指數', price: 33439.11, change: 826.87, isIndex: true, prevClose: 32612.24 });
+window.parsedMarketData.push({ 
+    symbol: 'UEC', name: 'Uranium Energy', price: 13.30, change: 0.00, prevClose: 13.30, 
+    open: 13.30, high: 13.30, low: 13.30, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '13.30', amplitudeStr: '0.00%',
+    high52: 13.30, low52: 13.30, historyHigh: 13.30, historyLow: 13.30, lotSize: '1股', lotSizeVal: 1,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isUS: true 
+});
 window.parsedMarketData.push({ 
     symbol: '00326', name: '中國星集團', price: 7.77, change: 0.000, prevClose: 7.77, 
     open: 7.77, high: 7.77, low: 7.77, volume: 11539000, volumeStr: '1153.9萬', turnoverAmount: '7085.87萬', 
@@ -2676,6 +2686,17 @@ window.parsedMarketData.push({
     high52: 379.80, low52: 379.80, historyHigh: 379.80, historyLow: 379.80, lotSize: '20股', lotSizeVal: 20,
     beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
     isStatic: true, isHK: true 
+});
+
+window.parsedMarketData.push({ 
+    symbol: 'INTC', name: '英特爾', price: 95.00, change: 0.00, prevClose: 95.00, 
+    open: 95.00, high: 95.00, low: 95.00, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '95.00', amplitudeStr: '0.00%',
+    high52: 95.00, low52: 95.00, historyHigh: 95.00, historyLow: 95.00, lotSize: '1股', lotSizeVal: 1,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: false, isUS: true 
 });
 
 rawMarketData.trim().split('\n').forEach(line => {

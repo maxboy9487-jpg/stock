@@ -1,5 +1,5 @@
 // --- Constants & Config ---
-const CONFIG = { FEE_RATE: 0.001425, MIN_FEE: 20, TAX_RATE: 0.003, HKD_RATE: 4.05 }; // Mock HKD rate
+const CONFIG = { FEE_RATE: 0.001425, MIN_FEE: 20, TAX_RATE: 0.003, HKD_RATE: 4.05, USD_RATE: 32.5 }; // Mock HKD rate
 
 // --- Global UI State ---
 window.portfolioTab = 'inventory';
@@ -331,7 +331,7 @@ window.renderSelectedStockCardContent = function (stock) {
                     <div style="font-size:0.9rem; color:var(--text-secondary); margin-top:4px;">目前價格：<strong style="color:var(--text-primary); font-family:var(--font-mono); font-size:1.05rem;">${stock.price}</strong></div>
                 </div>
                 <div style="text-align:right;">
-                    <span class="badge" style="background:${stock.isHK ? '#ffca28' : '#4a86ff'}; color:black; font-size:0.75rem; padding:2px 6px; border-radius:4px; font-weight:700;">${stock.isHK ? '複委託/港股' : '台股'}</span>
+                    <span class="badge" style="background:${stock.isHK ? '#ffca28' : '#4a86ff'}; color:black; font-size:0.75rem; padding:2px 6px; border-radius:4px; font-weight:700;">${stock.isUS ? '複委託/美股' : (stock.isUS ? '複委託/美股' : (stock.isHK ? '複委託/港股' : '台股'))}</span>
                 </div>
             </div>
             
@@ -473,7 +473,9 @@ function processOrderExecution(order, execPrice) {
     let shares = order.shares;
     const stock = state.marketData.find(s => s.symbol === order.symbol);
     let isHK = stock && stock.isHK;
-    let rate = isHK ? CONFIG.HKD_RATE : 1;
+    let isUS = stock && stock.isUS;
+    let isUS = stock && stock.isUS;
+    let rate = (typeof stock !== "undefined" && stock && stock.isUS) ? CONFIG.USD_RATE : (isHK ? CONFIG.HKD_RATE : 1);
     let twdValue = execPrice * shares * rate;
     let marginType = order.marginType || 'cash';
 
@@ -589,7 +591,7 @@ function submitOrder(tradeParams, isTriggeredBySmart = false) {
     // Final Safety Check (Blocking logic)
     const stockObj = state.marketData.find(s => s.symbol === symbol);
     let isHK = stockObj && stockObj.isHK;
-    let rate = isHK ? CONFIG.HKD_RATE : 1;
+    let rate = (typeof stock !== "undefined" && stock && stock.isUS) ? CONFIG.USD_RATE : (isHK ? CONFIG.HKD_RATE : 1);
     let currentPrice = stock.price;
     let estPrice = priceType === 'market' ? currentPrice : limitPrice;
     let totalTwd = estPrice * shares * rate;
@@ -758,7 +760,7 @@ function recordAssetHistory() {
     let totalStockValue = state.portfolio.reduce((sum, pos) => {
         let stock = state.marketData.find(x => x.symbol === pos.symbol);
         let currentPrice = stock ? stock.price : pos.avgPrice;
-        let rate = (stock && stock.isHK) ? CONFIG.HKD_RATE : 1;
+        let rate = (stock && stock.isUS) ? CONFIG.USD_RATE : ((stock && stock.isHK) ? CONFIG.HKD_RATE : 1);
         let pTwd = currentPrice * rate;
 
         const currentVal = pTwd * pos.shares;
@@ -1651,7 +1653,7 @@ function renderStockDetail() {
     document.getElementById('header-title').textContent = `${stock.name} ${stock.symbol}`;
     let pctChange = (stock.change / (stock.price - stock.change || 1)) * 100;
 
-    if (stock.isHK) {
+    if (stock.isHK || stock.isUS) {
         const upColor = 'var(--color-up)';
         const downColor = 'var(--color-down)';
         const priceColor = stock.change > 0 ? upColor : (stock.change < 0 ? downColor : '#eee');
@@ -2124,9 +2126,9 @@ function renderPortfolioPage() {
                 const stock = state.marketData.find(s => s.symbol === pos.symbol);
                 let currentPrice = stock ? stock.price : pos.avgPrice;
                 let isHKPos = stock && stock.isHK;
-                let marketName = isHKPos ? '香港' : '台灣';
-                let currencyName = isHKPos ? '港幣' : '台幣';
-                let rate = isHKPos ? CONFIG.HKD_RATE : 1;
+                let marketName = (stock && stock.isUS) ? '美國' : (isHKPos ? '香港' : '台灣');
+                let currencyName = (stock && stock.isUS) ? '美金' : (isHKPos ? '港幣' : '台幣');
+                let rate = (stock && stock.isUS) ? CONFIG.USD_RATE : (isHKPos ? CONFIG.HKD_RATE : 1);
 
                 let costTwd = pos.avgPrice * pos.shares;
                 let currentValTwd = currentPrice * pos.shares * rate;
@@ -2283,7 +2285,7 @@ function renderPortfolioPage() {
             state.portfolio.forEach((p, idx) => {
                 let stock = state.marketData.find(x => x.symbol === p.symbol);
                 let price = stock ? stock.price : p.avgPrice;
-                let rate = (stock && stock.isHK) ? CONFIG.HKD_RATE : 1;
+                let rate = (stock && stock.isUS) ? CONFIG.USD_RATE : ((stock && stock.isHK) ? CONFIG.HKD_RATE : 1);
 
                 let currentVal = price * rate * p.shares;
                 let { fee: simFee, tax: simTax } = calculateFees(currentVal, 'sell');
@@ -2490,8 +2492,8 @@ function renderPortfolioPage() {
 
                 const stockO = state.marketData.find(s => s.symbol === o.symbol);
                 let isHKLine = stockO && stockO.isHK;
-                let marketName = isHKLine ? '香港' : '台灣';
-                let currencyName = isHKLine ? '港幣' : '台幣';
+                let marketName = ((typeof stockO !== 'undefined' && stockO && stockO.isUS) || (typeof stockH !== 'undefined' && stockH && stockH.isUS)) ? '美國' : (isHKLine ? '香港' : '台灣');
+                let currencyName = ((typeof stockO !== 'undefined' && stockO && stockO.isUS) || (typeof stockH !== 'undefined' && stockH && stockH.isUS)) ? '美金' : (isHKLine ? '港幣' : '台幣');
 
                 let orderDate = o.time && o.time.includes('/') ? o.time.split(' ')[0] : new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
                 const _now = new Date();
@@ -2518,7 +2520,7 @@ function renderPortfolioPage() {
                             </div>
                             <div style="width: 20px;"></div>
                             <div style="flex:1; text-align:right; font-size:1.15rem; color:white; font-family:var(--font-mono);">
-                                ${formatNumber(o.price, (isHKLine && o.price < 1) ? 3 : 2)}
+                                ${formatNumber(o.price, ((isHKLine || (stockO && stockO.isUS)) && o.price < 1) ? 3 : 2)}
                             </div>
                             <div style="width: 20px;"></div>
                             <div style="flex:1.5; text-align:right; font-size:1.1rem; color:white;">
@@ -2563,7 +2565,7 @@ function renderPortfolioPage() {
                                 </div>
                                 <div style="display:flex; justify-content:space-between;">
                                     <div>成交均價</div>
-                                    <div style="font-family:var(--font-mono);">${formatNumber(execAvgPrice, (isHKLine && execAvgPrice < 1 && execAvgPrice > 0) ? 3 : 2)}</div>
+                                    <div style="font-family:var(--font-mono);">${formatNumber(execAvgPrice, ((isHKLine || (stockO && stockO.isUS)) && execAvgPrice < 1 && execAvgPrice > 0) ? 3 : 2)}</div>
                                 </div>
                             </div>
 
@@ -2626,8 +2628,8 @@ function renderPortfolioPage() {
                 let sideName = h.type === 'buy' ? '買進' : '賣出';
                 const stockH = state.marketData.find(s => s.symbol === h.symbol);
                 let isHKLine = stockH && stockH.isHK;
-                let marketName = isHKLine ? '香港' : '台灣';
-                let currencyName = isHKLine ? '港幣' : '台幣';
+                let marketName = ((typeof stockO !== 'undefined' && stockO && stockO.isUS) || (typeof stockH !== 'undefined' && stockH && stockH.isUS)) ? '美國' : (isHKLine ? '香港' : '台灣');
+                let currencyName = ((typeof stockO !== 'undefined' && stockO && stockO.isUS) || (typeof stockH !== 'undefined' && stockH && stockH.isUS)) ? '美金' : (isHKLine ? '港幣' : '台幣');
 
                 let execTime = h.time || "2026/04/23 14:58:" + String(Math.floor(Math.random() * 60)).padStart(2, '0');
 
@@ -2641,7 +2643,7 @@ function renderPortfolioPage() {
                         <div style="display:flex; align-items:center; padding: 14px 16px; font-weight:bold;">
                             <div style="flex:1; text-align:left; color:${sideColor}; font-size:1.15rem;">${sideName}</div>
                             <div style="flex:1.2; text-align:left; color:white; font-size:1.15rem; font-family:var(--font-mono); padding-left:12px;">${h.symbol}</div>
-                            <div style="flex:1.5; text-align:right; color:white; font-size:1.15rem; font-family:var(--font-mono); padding-right:12px;">${formatNumber(tradePrice, (isHKLine && tradePrice < 1) ? 3 : 2)}</div>
+                            <div style="flex:1.5; text-align:right; color:white; font-size:1.15rem; font-family:var(--font-mono); padding-right:12px;">${formatNumber(tradePrice, ((isHKLine || (stockH && stockH.isUS)) && tradePrice < 1) ? 3 : 2)}</div>
                             <div style="flex:1.5; text-align:right; color:white; font-size:1.15rem; font-family:var(--font-mono);">${formatNumber(h.shares, 0)}</div>
                         </div>
                         <div style="height:1px; background:#444; margin:0 16px;"></div>
@@ -2763,7 +2765,7 @@ function renderPortfolioPage() {
         let totalHeldTwd = state.portfolio.reduce((sum, pos) => {
             const st = state.marketData.find(x => x.symbol === pos.symbol);
             const price = st ? st.price : pos.avgPrice;
-            const r = (st && st.isHK) ? CONFIG.HKD_RATE : 1;
+            const r = (st && st.isUS) ? CONFIG.USD_RATE : ((st && st.isHK) ? CONFIG.HKD_RATE : 1);
             return sum + (price * r * pos.shares);
         }, 0);
         const totalEquityEst = state.balance + totalHeldTwd;
@@ -2772,7 +2774,7 @@ function renderPortfolioPage() {
         const tsmc = state.marketData.find(s => s.symbol === '2330');
         const refStock = tsmc || state.marketData.filter(s => !s.isIndex && s.price > 0).sort((a, b) => a.price - b.price)[0];
         const refLot = refStock ? (refStock.lotSizeVal || 1000) : 1000;
-        const refRate = (refStock && refStock.isHK) ? CONFIG.HKD_RATE : 1;
+        const refRate = (refStock && refStock.isUS) ? CONFIG.USD_RATE : ((refStock && refStock.isHK) ? CONFIG.HKD_RATE : 1);
         const refCostPerLot = refStock ? (refStock.price * refRate * refLot * 1.001425) : 1;
         const maxLots = refStock ? Math.floor(state.balance / refCostPerLot) : 0;
         return topHtml + `
@@ -3012,7 +3014,9 @@ function buildTradePage() {
         if (tradeState.priceType === 'smart') { estPrice = tradeState.triggerExecuteType === 'limit' ? tradeState.triggerOrderPrice : currentPrice; }
 
         let isHK = stock && stock.isHK;
-        let rate = isHK ? CONFIG.HKD_RATE : 1;
+    let isUS = stock && stock.isUS;
+    let isUS = stock && stock.isUS;
+        let rate = (typeof stock !== "undefined" && stock && stock.isUS) ? CONFIG.USD_RATE : (isHK ? CONFIG.HKD_RATE : 1);
         let estTwdPrice = estPrice * rate;
         let totalVal = estTwdPrice * tradeState.shares;
 
@@ -3036,7 +3040,7 @@ function buildTradePage() {
         if (tradeState.shares <= 0) { disabled = true; warning = '請輸入正確數量'; }
 
         let currentLotSize = (stock && stock.lotSizeVal) ? stock.lotSizeVal : 1000;
-        if (isHK && tradeState.shares % currentLotSize !== 0) { disabled = true; warning = `港股訂單必須為 ${currentLotSize} 股的倍數`; }
+        if ((isHK || (stock && stock.isUS)) && tradeState.shares % currentLotSize !== 0) { disabled = true; warning = `港股訂單必須為 ${currentLotSize} 股的倍數`; }
 
         // Safety check based on position logic
         if (opType === 'open' && tradeState.shares > 0 && totalCost > state.balance && tradeState.priceType !== 'smart') {
@@ -3122,7 +3126,7 @@ function buildTradePage() {
                     <input type="text" id="trade-search" class="form-control" placeholder="例如: 2330 或 台積電" value="${tradeState.searchQuery}" style="margin-bottom:8px; border-color:var(--accent-blue);">
                     <select id="trade-symbol" class="form-control" style="background:var(--bg-input);">
                         ${state.marketData.filter(s => !s.isIndex && (s.symbol.includes(tradeState.searchQuery) || s.name.includes(tradeState.searchQuery)))
-                .map(s => `<option value="${s.symbol}" ${s.symbol === tradeState.symbol ? 'selected' : ''}>${s.symbol} ${s.name} ${s.isHK ? '(HK)' : ''}</option>`)
+                .map(s => `<option value="${s.symbol}" ${s.symbol === tradeState.symbol ? 'selected' : ''}>${s.symbol} ${s.name} ${s.isUS ? '(US)' : (s.isUS ? '(US)' : (s.isHK ? '(HK)' : ''))}</option>`)
                 .join('') || '<option disabled>查對相符股票</option>'}
                     </select>
                 </div>
@@ -3168,7 +3172,7 @@ function buildTradePage() {
                 
                 <div class="form-group" style="margin-top:16px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <label class="text-label">委託股數 ${isHK ? `(${currentLotSize} 股為單位)` : '(自由輸入)'}</label>
+                        <label class="text-label">委託股數 ${(isHK || (typeof isUS !== 'undefined' && isUS)) ? `(${currentLotSize} 股為單位)` : '(自由輸入)'}</label>
                         <span style="font-size:0.8rem; color:var(--text-secondary);">目前持有: <strong style="color:var(--accent-blue);" class="tabular-nums">${state.portfolio.find(p => p.symbol === tradeState.symbol && p.marginType === tradeState.marginType)?.shares || 0}</strong> 股</span>
                     </div>
                     <div style="display:flex; gap:12px;">
@@ -3178,7 +3182,7 @@ function buildTradePage() {
                         </div>
                         <div style="flex:1;">
                             <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:4px;">總股數</div>
-                            <input type="number" id="trade-shares" class="form-control tabular-nums" value="${tradeState.shares}" min="${isHK ? currentLotSize : 1}" step="${isHK ? currentLotSize : 1}">
+                            <input type="number" id="trade-shares" class="form-control tabular-nums" value="${tradeState.shares}" min="${(isHK || (typeof isUS !== 'undefined' && isUS)) ? currentLotSize : 1}" step="${(isHK || (typeof isUS !== 'undefined' && isUS)) ? currentLotSize : 1}">
                         </div>
                     </div>
                     <div class="shortcut-group">
@@ -3308,7 +3312,7 @@ function buildTradePage() {
 
                 const price = stock.price;
                 const stockForRate = state.marketData.find(s => s.symbol === symbol);
-                const rate = (stockForRate && stockForRate.isHK) ? CONFIG.HKD_RATE : 1;
+                const rate = (stockForRate && stockForRate.isUS) ? CONFIG.USD_RATE : ((stockForRate && stockForRate.isHK) ? CONFIG.HKD_RATE : 1);
 
                 let targetShares = 0;
                 let opType = 'close';
@@ -3331,7 +3335,7 @@ function buildTradePage() {
                 }
 
                 // For HK stocks, snap to lot size
-                if (stock.isHK && targetShares > 0) {
+                if ((stock.isHK || stock.isUS) && targetShares > 0) {
                     const lsv = stock.lotSizeVal || 1000;
                     targetShares = Math.floor(targetShares / lsv) * lsv;
                 }
@@ -3620,7 +3624,7 @@ function updatePortfolioRowUI(stock) {
     const pctEl = document.getElementById(`inv-pnlpct-${stock.symbol}`);
     if (!pEl || !pctEl) return;
 
-    let rate = stock.isHK ? CONFIG.HKD_RATE : 1;
+    let rate = stock.isUS ? CONFIG.USD_RATE : (stock.isHK ? CONFIG.HKD_RATE : 1);
     let localAvgPrice = pos.avgPrice / rate;
     let localCost = localAvgPrice * pos.shares;
     let localCurrentVal = stock.price * pos.shares;
