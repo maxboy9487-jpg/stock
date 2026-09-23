@@ -2556,6 +2556,17 @@ window.parsedMarketData.push({
 });
 
 window.parsedMarketData.push({ 
+    symbol: '00268', name: '金蝶國際', price: 7.425, change: 0.00, prevClose: 7.425, 
+    open: 7.425, high: 7.425, low: 7.425, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '7.425', amplitudeStr: '0.00%',
+    high52: 7.425, low52: 7.425, historyHigh: 7.425, historyLow: 7.425, lotSize: '1000股', lotSizeVal: 1000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
+window.parsedMarketData.push({ 
     symbol: '02225', name: '今海醫療科技', price: 3.70, change: 0.00, prevClose: 3.70, 
     open: 3.70, high: 3.70, low: 3.70, volume: 100000, volumeStr: '10.0萬', turnoverAmount: '37.0萬', 
     marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
