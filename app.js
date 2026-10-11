@@ -58,7 +58,7 @@ const state = {
     orders: [],
     history: [],
     triggers: [],
-    watchlist: ['2330', '2454', '00326', '00805', '06162'],
+    watchlist: ['2330', '2454', '00326', '00805', '06162', '01196'],
     marketData: window.parsedMarketData || [],
     currentBranch: `(台)台南 3815467`,
     shouldMatchOrders: true
@@ -99,7 +99,7 @@ function resetStateInMemory() {
     state.history = [];
     state.triggers = [];
     state.assetHistory = [];
-    state.watchlist = ['2330', '2454', '00326', '00805'];
+    state.watchlist = ['2330', '2454', '00326', '00805', '06162', '01196'];
     state.todayTrades = new Set();
 }
 
@@ -1213,6 +1213,26 @@ function generateMockNews(stock) {
             { title: "鴻盛昌資源 (01850.HK) 宣佈擬正式更名為「美好生活集團控股有限公司」以配合集團新業務戰略", source: "[AASTOCKS]", time: "04/18 18:05" },
             { title: "美好生活集團 (01850.HK) 中標本港多項公共屋邨消防安全系統安裝工程，合約總值逾千萬港元", source: "[智通財經]", time: "05/11 09:40" },
             { title: "鴻盛昌資源 (01850.HK) 近期股權與倉位變動頻繁，今日大手交易報 HK$3.07", source: "[東方財富網]", time: "06/05 16:15" }
+        ];
+        return selected.map(n => `
+        <div class="card" style="padding: 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:8px; margin-bottom:8px;">
+            <div style="color:var(--text-primary); font-weight:600; margin-bottom:4px; font-size:0.95rem;">${n.title}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                <div style="color:var(--text-secondary); font-size:0.8rem;">${n.source} ${n.time}</div>
+                <div style="display:flex; gap:6px;">
+                    <button class="btn btn-outline" style="padding:2px 8px; font-size:0.75rem; color:var(--color-up); border-color:var(--color-up);" onclick="triggerNewsEvent('${stock.symbol}', 'pump')">利多拉抬</button>
+                    <button class="btn btn-outline" style="padding:2px 8px; font-size:0.75rem; color:var(--color-down); border-color:var(--color-down);" onclick="triggerNewsEvent('${stock.symbol}', 'dump')">利空打壓</button>
+                </div>
+            </div>
+        </div>
+        `).join('');
+    }
+
+    if (stock.symbol === '01196') {
+        const selected = [
+            { title: "偉祿科技股份 (01196.HK) 附屬擬與龍馬智算合作在馬來西亞柔佛州開發AI數據中心", source: "[AASTOCKS]", time: "10/11 18:30" },
+            { title: "偉祿科技股份 (01196.HK) 宣佈更名為「偉祿科技股份有限公司」，深化智算與金融科技佈局", source: "[智通財經]", time: "09/25 09:15" },
+            { title: "偉祿科技股份 (01196.HK) 資本重組生效並以新代號「01196 偉祿科技股份-新」並行買賣，每手單位1,000股", source: "[東方財富網]", time: "10/08 16:20" }
         ];
         return selected.map(n => `
         <div class="card" style="padding: 12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:8px; margin-bottom:8px;">
@@ -3706,7 +3726,12 @@ function loadState() {
                 state.assetHistory = filtered;
             }
 
-            if (parsed.watchlist) state.watchlist = parsed.watchlist;
+            if (parsed.watchlist) {
+                state.watchlist = parsed.watchlist;
+                if (!state.watchlist.includes('01196')) {
+                    state.watchlist.push('01196');
+                }
+            }
             if (parsed.alerts) state.alerts = parsed.alerts;
             if (parsed.feeDiscount !== undefined) state.feeDiscount = parsed.feeDiscount;
             if (parsed.shouldMatchOrders !== undefined) state.shouldMatchOrders = parsed.shouldMatchOrders;

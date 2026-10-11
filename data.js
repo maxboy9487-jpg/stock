@@ -2700,6 +2700,17 @@ window.parsedMarketData.push({
 });
 
 window.parsedMarketData.push({ 
+    symbol: '01196', name: '偉祿科技股份-新', price: 3.62, change: 0.00, prevClose: 3.62, 
+    open: 3.62, high: 3.62, low: 3.62, volume: 0, volumeStr: '0', turnoverAmount: '0', 
+    marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
+    peTTM: '--', peStatic: '--', pb: '--', peDynamic: '--',
+    turnoverRateStr: '--', bidRatio: '--', volumeRatio: '--', avgPriceStr: '3.62', amplitudeStr: '0.00%',
+    high52: 3.62, low52: 3.62, historyHigh: 3.62, historyLow: 3.62, lotSize: '1000股', lotSizeVal: 1000,
+    beta: 1.0, divYieldTTM: '--', divYieldLFY: '--', divYieldRateTTM: '--', divYieldRateLFY: '--',
+    isStatic: true, isHK: true 
+});
+
+window.parsedMarketData.push({ 
     symbol: 'INTC', name: '英特爾', price: 95.00, change: 0.00, prevClose: 95.00, 
     open: 95.00, high: 95.00, low: 95.00, volume: 0, volumeStr: '0', turnoverAmount: '0', 
     marketCap: '--', totalShares: '--', circulatingShares: '--', circulatingValue: '--',
